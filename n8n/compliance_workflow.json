@@ -1,0 +1,112 @@
+{
+  "name": "Compliance Review Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "node-schedule-trigger",
+      "name": "Daily 9 AM Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /Users/YOUR_USERNAME/compliance-automation-engine && python scripts/04_run_pipeline.py --provider groq --key YOUR_GROQ_KEY"
+      },
+      "id": "node-run-pipeline",
+      "name": "Run Compliance Pipeline",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "command": "cat \"$(ls -t /Users/YOUR_USERNAME/compliance-automation-engine/outputs/reports/*_summary.txt | head -1)\""
+      },
+      "id": "node-read-summary",
+      "name": "Read Latest Summary",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GROQ_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"llama-3.3-70b-versatile\",\"messages\":[{\"role\":\"user\",\"content\":\"Draft a polite professional compliance review email to a small business client. Risks: {{ $json.stdout }}. Requirements: open warmly, list only HIGH and MEDIUM risks in plain English, one clarifying question per risk, suggest a 30-minute call, under 400 words, sign-off: Compliance Review Team. Return email text only.\"}]}",
+        "options": {}
+      },
+      "id": "node-draft-email",
+      "name": "Draft Email (any OpenAI-compatible API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "Compliance Review — Items for Discussion",
+        "emailType": "text",
+        "message": "={{ $json.choices[0].message.content }}",
+        "options": {}
+      },
+      "id": "node-gmail-draft",
+      "name": "Gmail — Create Draft",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1120, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 9 AM Trigger": {
+      "main": [[{ "node": "Run Compliance Pipeline", "type": "main", "index": 0 }]]
+    },
+    "Run Compliance Pipeline": {
+      "main": [[{ "node": "Read Latest Summary", "type": "main", "index": 0 }]]
+    },
+    "Read Latest Summary": {
+      "main": [[{ "node": "Draft Email (any OpenAI-compatible API)", "type": "main", "index": 0 }]]
+    },
+    "Draft Email (any OpenAI-compatible API)": {
+      "main": [[{ "node": "Gmail — Create Draft", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templatecredsSetupCompleted": false
+  }
+}

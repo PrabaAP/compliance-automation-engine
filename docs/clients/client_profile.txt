@@ -1,0 +1,79 @@
+CLIENT BUSINESS PROFILE
+Prepared for: Internal Compliance Review
+Review Date: June 2024
+
+─────────────────────────────────────────
+COMPANY OVERVIEW
+─────────────────────────────────────────
+
+Company Name:       Meridian Advisory Group Inc.
+Business Type:      Professional services — accounting and tax consulting
+Province:           Ontario, Canada
+Year Incorporated:  2017
+Fiscal Year:        January 1 to December 31, 2024
+CRA Business No.:   89234 7812 RT0001
+HST/GST Number:     89234 7812 RT0001 (registered, remits quarterly)
+Corporate Status:   Canadian-Controlled Private Corporation (CCPC)
+
+─────────────────────────────────────────
+FINANCIAL SUMMARY (FY 2024 YTD — January to June)
+─────────────────────────────────────────
+
+Total Revenue:                  $1,048,000 CAD (annualised projection: ~$2.1M)
+Operating Expenses:             $724,000 CAD
+Net Income Before Tax:          $324,000 CAD
+Corporate Bank Account:         RBC Business Banking, Ontario
+Outstanding Director Loan:      $45,000 CAD (loan to sole director, outstanding 14 months)
+Documented Repayment Schedule:  None on file
+
+─────────────────────────────────────────
+WORKFORCE STRUCTURE
+─────────────────────────────────────────
+
+Full-Time Employees (T4):       14 staff
+Part-Time / Contract Workers:   3 individuals classified as independent contractors (T4A)
+
+Notes on contractors:
+- Contractor 1 (bookkeeping services): Has worked exclusively for Meridian since November 2022.
+  Works from Meridian's office 4 days per week. Uses company-supplied software and equipment.
+- Contractor 2 (client relations support): Working with Meridian since January 2023.
+  Services provided only to Meridian, no other clients listed.
+- Contractor 3 (IT support): Engaged as-needed, serves multiple clients. Clearly independent.
+
+─────────────────────────────────────────
+TAX FILING HISTORY
+─────────────────────────────────────────
+
+T2 Corporate Return (FY2023):   Filed on time — March 2024
+T4 Slips (FY2023):              Two employees' T4 slips were filed 11 days late (February 2024)
+                                 CRA penalty notice received, paid
+HST Returns (FY2024):           Q1 filed and paid. Q2 not yet due.
+Payroll Remittances:            Up to date
+
+─────────────────────────────────────────
+EXPENSES — NOTABLE ITEMS
+─────────────────────────────────────────
+
+Meals and Entertainment:        $34,800 CAD claimed as business expense (FY2024 YTD)
+                                 Input Tax Credits (HST) claimed on full amount
+                                 (50% restriction rule under ITA Section 67.1 applies)
+
+Home Office (Director):         Director claims home office deduction — no T2200 form documented
+                                 for FY2024
+
+Vehicle Expenses:               One company vehicle — logbook not maintained for FY2024
+
+─────────────────────────────────────────
+NOTES FROM CLIENT MEETING (May 2024)
+─────────────────────────────────────────
+
+- Director mentioned they "handle payroll themselves" and have not used a third-party
+  payroll processor since 2022
+- Company plans to hire two additional full-time staff by September 2024
+- Director asked about expanding services to US clients — no non-resident withholding
+  tax advice has been given yet
+- Client expressed uncertainty about whether contractor arrangements need to be revisited
+
+─────────────────────────────────────────
+END OF PROFILE
+─────────────────────────────────────────
