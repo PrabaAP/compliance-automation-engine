@@ -1,0 +1,8 @@
+# Distinct "audit brief" theme — sets this project apart from the stock dark look.
+[theme]
+base = "light"
+primaryColor = "#1E3A5F"
+backgroundColor = "#F5F7FA"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#1F2933"
+font = "sans serif"

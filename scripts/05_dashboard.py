@@ -34,7 +34,7 @@ CHART_BG = "rgba(0,0,0,0)"
 GRID_COLOR = "rgba(128,128,128,0.15)"
 AXIS_STYLE = dict(gridcolor=GRID_COLOR, zerolinecolor=GRID_COLOR)
 
-SEVERITY_COLOR = {"HIGH": "#EF4444", "MEDIUM": "#F59E0B", "LOW": "#10B981"}
+SEVERITY_COLOR = {"HIGH": "#DC2626", "MEDIUM": "#D97706", "LOW": "#059669"}
 SEVERITY_WEIGHT = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
 
 # ── Page config ──────────────────────────────────────────────────────────────
@@ -42,6 +42,65 @@ st.set_page_config(
     page_title="Compliance Review Engine",
     layout="wide",
     page_icon="⚖️",
+)
+
+# ── Custom "audit brief" theme (distinct from the stock Streamlit look) ───────
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&display=swap');
+
+    html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"] {
+        font-family: 'IBM Plex Sans', sans-serif;
+    }
+    [data-testid="stAppViewContainer"] { background-color: #F5F7FA; }
+    [data-testid="stHeader"] { background: transparent; }
+    h1, h2, h3 {
+        font-family: 'IBM Plex Serif', Georgia, serif;
+        color: #1E3A5F; letter-spacing: -0.01em;
+    }
+
+    /* Hero banner */
+    .hero {
+        background: linear-gradient(135deg, #1E3A5F 0%, #2C5282 100%);
+        padding: 26px 32px; border-radius: 14px; margin-bottom: 18px;
+        box-shadow: 0 8px 24px rgba(30,58,95,0.18);
+    }
+    .hero h1 { color: #FFFFFF !important; margin: 0; font-size: 2.05rem; }
+    .hero p  { color: #CBD5E1; margin: 6px 0 0; font-size: 1.0rem;
+               font-family: 'IBM Plex Sans', sans-serif; }
+
+    /* Sidebar */
+    [data-testid="stSidebar"] { background-color: #FFFFFF; border-right: 1px solid #E6E9EF; }
+
+    /* Metric cards */
+    [data-testid="stMetric"], [data-testid="metric-container"] {
+        background: #FFFFFF; border: 1px solid #E6E9EF; border-left: 5px solid #1E3A5F;
+        border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(16,24,40,0.06);
+    }
+    [data-testid="stMetricValue"] { color: #1E3A5F; font-weight: 700; }
+    [data-testid="stMetricLabel"] { color: #64748B; }
+
+    /* Primary buttons */
+    .stButton > button {
+        background: #1E3A5F; color: #FFFFFF; border: none; border-radius: 8px;
+        font-weight: 600; padding: 0.5rem 1rem;
+    }
+    .stButton > button:hover { background: #2C5282; color: #FFFFFF; }
+
+    /* Expanders as cards */
+    [data-testid="stExpander"] {
+        border: 1px solid #E6E9EF; border-radius: 10px; background: #FFFFFF; margin-bottom: 8px;
+    }
+
+    /* Tabs */
+    .stTabs [data-baseweb="tab"] { font-weight: 600; }
+
+    /* Clean chrome for the deployed app */
+    #MainMenu, [data-testid="stToolbar"], footer { visibility: hidden; }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 # ── Session state ────────────────────────────────────────────────────────────
@@ -213,7 +272,13 @@ if st.sidebar.button(
                 st.code(output or "No output", language="text")
 
 # ── Main area ────────────────────────────────────────────────────────────────
-st.title("⚖️ Compliance Review Engine")
+st.markdown(
+    '<div class="hero">'
+    '<h1>⚖️ Compliance Review Engine</h1>'
+    '<p>AI-assisted CRA compliance risk review — bring your own AI, your data stays local</p>'
+    '</div>',
+    unsafe_allow_html=True,
+)
 
 tab_report, tab_audit = st.tabs(["📋 Latest Report", "📁 Audit Trail"])
 
