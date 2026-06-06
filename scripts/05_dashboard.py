@@ -5,6 +5,9 @@ The user connects their own AI provider (key lives only in this session),
 uploads a client profile, and runs the full compliance pipeline. Results and
 an audit trail are shown in two tabs.
 
+Theming: an in-app System / Light / Dark toggle drives CSS custom properties.
+"System" follows the viewer's OS via prefers-color-scheme.
+
 Run with:
     streamlit run scripts/05_dashboard.py
 """
@@ -29,13 +32,137 @@ DB_PATH = PROJECT_ROOT / "database" / "audit.db"
 TEST_SCRIPT = SCRIPTS_DIR / "01_test_connection.py"
 PIPELINE_SCRIPT = SCRIPTS_DIR / "04_run_pipeline.py"
 
-# ── Chart styling ────────────────────────────────────────────────────────────
-CHART_BG = "rgba(0,0,0,0)"
-GRID_COLOR = "rgba(128,128,128,0.15)"
-AXIS_STYLE = dict(gridcolor=GRID_COLOR, zerolinecolor=GRID_COLOR)
-
 SEVERITY_COLOR = {"HIGH": "#DC2626", "MEDIUM": "#D97706", "LOW": "#059669"}
 SEVERITY_WEIGHT = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
+
+# ── Theme palettes (CSS custom properties) ───────────────────────────────────
+_LIGHT_VARS = """
+    --bg: #EDF1F8;
+    --surface: #FFFFFF;
+    --surface-2: #F2F5FB;
+    --text: #0F1B2D;
+    --muted: #5B6B86;
+    --border: #E1E7F1;
+    --primary: #2F54EB;
+    --primary-deep: #15327A;
+    --shadow: 0 1px 2px rgba(16,24,40,.04), 0 6px 20px rgba(16,24,40,.07);
+"""
+_DARK_VARS = """
+    --bg: #0A0F1A;
+    --surface: #121C2D;
+    --surface-2: #182640;
+    --text: #E8ECF4;
+    --muted: #94A3BB;
+    --border: #233149;
+    --primary: #6E8BFF;
+    --primary-deep: #1A2C58;
+    --shadow: 0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.5);
+"""
+
+_CSS_RULES = """
+    html, body, .stApp, [data-testid="stSidebar"] {
+        font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    }
+    .stApp, [data-testid="stAppViewContainer"] { background-color: var(--bg); color: var(--text); }
+    [data-testid="stHeader"] { background: transparent; }
+    .block-container { padding-top: 2.4rem; }
+
+    h1, h2, h3 { font-family: 'IBM Plex Serif', Georgia, serif; color: var(--text); letter-spacing: -0.015em; }
+    p, span, label, li, [data-testid="stMarkdownContainer"] { color: var(--text); }
+    [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * { color: var(--muted) !important; }
+
+    /* Hero banner */
+    .hero { background: linear-gradient(135deg, var(--primary-deep) 0%, var(--primary) 100%);
+            padding: 30px 34px; border-radius: 18px; margin-bottom: 22px; box-shadow: var(--shadow); }
+    .hero h1 { color: #FFFFFF !important; margin: 0; font-size: 2.15rem; }
+    .hero p  { color: rgba(255,255,255,0.84); margin: 8px 0 0; font-size: 1.02rem; }
+
+    /* Sidebar */
+    [data-testid="stSidebar"] { background-color: var(--surface); border-right: 1px solid var(--border); }
+    [data-testid="stSidebar"] hr, hr { border-color: var(--border); }
+
+    /* Text inputs / selects / textareas */
+    [data-baseweb="input"], [data-baseweb="base-input"], [data-baseweb="select"] > div, [data-baseweb="textarea"] {
+        background-color: var(--surface-2) !important; border-color: var(--border) !important; border-radius: 10px !important; }
+    input, textarea, [data-baseweb="select"] div { color: var(--text) !important; }
+    input::placeholder, textarea::placeholder { color: var(--muted) !important; }
+
+    /* Dropdown popovers */
+    [data-baseweb="popover"] div, [data-baseweb="menu"], [role="listbox"] { background-color: var(--surface) !important; }
+    [data-baseweb="popover"] li, [role="option"] { color: var(--text) !important; }
+
+    /* File uploader */
+    [data-testid="stFileUploaderDropzone"] { background-color: var(--surface-2) !important;
+        border: 1px dashed var(--border) !important; border-radius: 12px; }
+    [data-testid="stFileUploaderDropzone"] * { color: var(--muted) !important; }
+
+    /* Buttons */
+    .stButton > button { background: var(--primary); color: #fff; border: 0; border-radius: 10px;
+        font-weight: 600; padding: 0.55rem 1rem; box-shadow: var(--shadow);
+        transition: filter .15s ease, transform .05s ease; }
+    .stButton > button:hover { filter: brightness(1.08); color: #fff; }
+    .stButton > button:active { transform: translateY(1px); }
+    .stButton > button:disabled { opacity: .45; box-shadow: none; }
+
+    /* Metric cards */
+    [data-testid="stMetric"] { background: var(--surface); border: 1px solid var(--border);
+        border-left: 5px solid var(--primary); border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow); }
+    [data-testid="stMetricValue"] { color: var(--text); font-weight: 700; }
+    [data-testid="stMetricLabel"], [data-testid="stMetricLabel"] * { color: var(--muted) !important; }
+
+    /* Expanders */
+    [data-testid="stExpander"] { border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+        margin-bottom: 10px; box-shadow: var(--shadow); overflow: hidden; }
+    [data-testid="stExpander"] summary { color: var(--text); font-weight: 600; }
+    [data-testid="stExpander"] summary:hover { color: var(--primary); }
+
+    /* Alerts */
+    [data-testid="stAlert"] { border-radius: 12px; border: 1px solid var(--border); }
+
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] { gap: 8px; border-bottom: 1px solid var(--border); }
+    .stTabs [data-baseweb="tab"] { font-weight: 600; color: var(--muted); }
+    .stTabs [aria-selected="true"] { color: var(--primary) !important; }
+    .stTabs [data-baseweb="tab-highlight"] { background-color: var(--primary) !important; }
+
+    /* Dataframe */
+    [data-testid="stDataFrame"] { border: 1px solid var(--border); border-radius: 12px; }
+
+    /* Theme toggle radio → pill row */
+    [data-testid="stSidebar"] [role="radiogroup"] { gap: 6px; flex-wrap: wrap; }
+
+    /* Hide Streamlit chrome for a clean look */
+    #MainMenu, [data-testid="stToolbar"], [data-testid="stDecoration"], footer { visibility: hidden; }
+"""
+
+_FONT_IMPORT = (
+    "@import url('https://fonts.googleapis.com/css2?"
+    "family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&display=swap');"
+)
+
+
+def build_theme_css(mode: str) -> str:
+    """Return the <style> block for the chosen appearance mode."""
+    if mode == "Light":
+        root = f":root {{ {_LIGHT_VARS} }}"
+    elif mode == "Dark":
+        root = f":root {{ {_DARK_VARS} }}"
+    else:  # System — follow the OS preference
+        root = (
+            f":root {{ {_LIGHT_VARS} }}\n"
+            f"@media (prefers-color-scheme: dark) {{ :root {{ {_DARK_VARS} }} }}"
+        )
+    return f"<style>\n{_FONT_IMPORT}\n{root}\n{_CSS_RULES}\n</style>"
+
+
+def chart_palette(mode: str) -> dict:
+    """Plotly font/grid colours per mode (Plotly can't read CSS variables)."""
+    if mode == "Dark":
+        return {"font": "#C8D2E0", "grid": "rgba(255,255,255,0.10)"}
+    if mode == "Light":
+        return {"font": "#33415A", "grid": "rgba(15,23,42,0.08)"}
+    return {"font": "#7385A0", "grid": "rgba(128,128,128,0.18)"}  # System compromise
+
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -44,66 +171,9 @@ st.set_page_config(
     page_icon="⚖️",
 )
 
-# ── Custom "audit brief" theme (distinct from the stock Streamlit look) ───────
-st.markdown(
-    """
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&display=swap');
-
-    html, body, [data-testid="stAppViewContainer"], [data-testid="stSidebar"] {
-        font-family: 'IBM Plex Sans', sans-serif;
-    }
-    [data-testid="stAppViewContainer"] { background-color: #F5F7FA; }
-    [data-testid="stHeader"] { background: transparent; }
-    h1, h2, h3 {
-        font-family: 'IBM Plex Serif', Georgia, serif;
-        color: #1E3A5F; letter-spacing: -0.01em;
-    }
-
-    /* Hero banner */
-    .hero {
-        background: linear-gradient(135deg, #1E3A5F 0%, #2C5282 100%);
-        padding: 26px 32px; border-radius: 14px; margin-bottom: 18px;
-        box-shadow: 0 8px 24px rgba(30,58,95,0.18);
-    }
-    .hero h1 { color: #FFFFFF !important; margin: 0; font-size: 2.05rem; }
-    .hero p  { color: #CBD5E1; margin: 6px 0 0; font-size: 1.0rem;
-               font-family: 'IBM Plex Sans', sans-serif; }
-
-    /* Sidebar */
-    [data-testid="stSidebar"] { background-color: #FFFFFF; border-right: 1px solid #E6E9EF; }
-
-    /* Metric cards */
-    [data-testid="stMetric"], [data-testid="metric-container"] {
-        background: #FFFFFF; border: 1px solid #E6E9EF; border-left: 5px solid #1E3A5F;
-        border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(16,24,40,0.06);
-    }
-    [data-testid="stMetricValue"] { color: #1E3A5F; font-weight: 700; }
-    [data-testid="stMetricLabel"] { color: #64748B; }
-
-    /* Primary buttons */
-    .stButton > button {
-        background: #1E3A5F; color: #FFFFFF; border: none; border-radius: 8px;
-        font-weight: 600; padding: 0.5rem 1rem;
-    }
-    .stButton > button:hover { background: #2C5282; color: #FFFFFF; }
-
-    /* Expanders as cards */
-    [data-testid="stExpander"] {
-        border: 1px solid #E6E9EF; border-radius: 10px; background: #FFFFFF; margin-bottom: 8px;
-    }
-
-    /* Tabs */
-    .stTabs [data-baseweb="tab"] { font-weight: 600; }
-
-    /* Clean chrome for the deployed app */
-    #MainMenu, [data-testid="stToolbar"], footer { visibility: hidden; }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-# ── Session state ────────────────────────────────────────────────────────────
+# ── Session state (theme_mode must exist before the CSS is injected) ──────────
+if "theme_mode" not in st.session_state:
+    st.session_state.theme_mode = "System"
 if "provider" not in st.session_state:
     st.session_state.provider = None
 if "api_key" not in st.session_state:
@@ -114,6 +184,8 @@ if "custom_base_url" not in st.session_state:
     st.session_state.custom_base_url = None
 if "custom_model" not in st.session_state:
     st.session_state.custom_model = None
+
+st.markdown(build_theme_css(st.session_state.theme_mode), unsafe_allow_html=True)
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -167,8 +239,17 @@ def run_subprocess(cmd):
     return result.returncode == 0, output
 
 
-# ── Sidebar: connection setup ────────────────────────────────────────────────
+# ── Sidebar: appearance + connection setup ────────────────────────────────────
 st.sidebar.title("⚖️ Compliance Engine")
+
+st.sidebar.radio(
+    "Appearance",
+    options=["System", "Light", "Dark"],
+    key="theme_mode",
+    horizontal=True,
+    format_func=lambda x: {"System": "🖥 System", "Light": "☀️ Light", "Dark": "🌙 Dark"}[x],
+)
+
 st.sidebar.markdown("---")
 st.sidebar.subheader("1. Connect Your AI")
 
@@ -304,6 +385,7 @@ with tab_report:
         c3.metric("Medium Severity", medium, delta=medium or None, delta_color="inverse")
 
         if risks:
+            pal = chart_palette(st.session_state.theme_mode)
             titles = [r.get("title", f"Risk {i+1}") for i, r in enumerate(risks)]
             weights = [SEVERITY_WEIGHT.get(s, 1) for s in severities]
             colors = [SEVERITY_COLOR.get(s, "#9CA3AF") for s in severities]
@@ -316,15 +398,20 @@ with tab_report:
                     marker_color=colors,
                     text=severities,
                     textposition="inside",
+                    textfont=dict(color="#FFFFFF", size=12),
                     hovertext=[r.get("client_exposure", "") for r in risks],
                 )
             )
             fig.update_layout(
-                plot_bgcolor=CHART_BG,
-                paper_bgcolor=CHART_BG,
-                xaxis=dict(title="Severity (HIGH=3 · MEDIUM=2 · LOW=1)", **AXIS_STYLE),
-                yaxis=dict(autorange="reversed", **AXIS_STYLE),
-                height=80 + 60 * len(risks),
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+                font=dict(color=pal["font"], family="IBM Plex Sans"),
+                xaxis=dict(
+                    title="Severity (HIGH=3 · MEDIUM=2 · LOW=1)",
+                    gridcolor=pal["grid"], zerolinecolor=pal["grid"],
+                ),
+                yaxis=dict(autorange="reversed", gridcolor=pal["grid"], zerolinecolor=pal["grid"]),
+                height=80 + 64 * len(risks),
                 margin=dict(l=10, r=10, t=30, b=10),
                 showlegend=False,
             )
@@ -339,7 +426,7 @@ with tab_report:
                     st.markdown(f"**Client exposure:** {r.get('client_exposure', '')}")
                     st.markdown(
                         f"<div style='background:{color}22;border-left:4px solid {color};"
-                        f"padding:8px 12px;border-radius:4px;'>"
+                        f"padding:8px 12px;border-radius:8px;'>"
                         f"<b>Action:</b> {r.get('action', '')}</div>",
                         unsafe_allow_html=True,
                     )
