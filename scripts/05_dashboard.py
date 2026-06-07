@@ -38,8 +38,10 @@ SEVERITY_WEIGHT = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
 # ── Theme palettes (CSS custom properties) ───────────────────────────────────
 _LIGHT_VARS = """
     --bg: #faf9f5;
-    --surface: #ffffff;
-    --surface-2: #efeeea;
+    --surface: #faf9f5;
+    --surface-2: #f4f4f0;
+    --surface-3: #efeeea;
+    --sidebar-bg: #f4f4f0;
     --text: #1b1c1a;
     --muted: #404941;
     --border: #c0c9be;
@@ -49,14 +51,26 @@ _LIGHT_VARS = """
     --accent-gold: #904d00;
     --glow: rgba(0, 59, 27, 0.08);
     --error: #ba1a1a;
-    --error-bg: rgba(186, 26, 26, 0.04);
+    --error-container: #ffdad6;
+    --on-error-container: #93000a;
+    --error-bg: rgba(255, 218, 214, 0.15);
     --warning: #904d00;
-    --warning-bg: rgba(144, 77, 0, 0.04);
+    --warning-bg: rgba(254, 147, 44, 0.12);
+    --secondary-container: #fe932c;
+    --on-secondary-container: #663500;
+    --badge-high-bg: #ffdad6;
+    --badge-high-text: #93000a;
+    --badge-high-border: rgba(186, 26, 26, 0.5);
+    --badge-med-bg: #fe932c;
+    --badge-med-text: #663500;
+    --badge-med-border: rgba(144, 77, 0, 0.5);
 """
 _DARK_VARS = """
     --bg: #0b0f0d;
     --surface: #121915;
     --surface-2: #1a231e;
+    --surface-3: #222e26;
+    --sidebar-bg: #121915;
     --text: #f4f6f5;
     --muted: #8b9b94;
     --border: #232e27;
@@ -66,9 +80,19 @@ _DARK_VARS = """
     --glow: rgba(16, 185, 129, 0.12);
     --accent-gold: #f59e0b;
     --error: #ef4444;
-    --error-bg: rgba(239, 68, 68, 0.06);
+    --error-container: rgba(239, 68, 68, 0.08);
+    --on-error-container: #ef4444;
+    --error-bg: rgba(239, 68, 68, 0.08);
     --warning: #f59e0b;
-    --warning-bg: rgba(245, 158, 11, 0.06);
+    --warning-bg: rgba(245, 158, 11, 0.08);
+    --secondary-container: rgba(245, 158, 11, 0.15);
+    --on-secondary-container: #f59e0b;
+    --badge-high-bg: rgba(239, 68, 68, 0.15);
+    --badge-high-text: #ef4444;
+    --badge-high-border: rgba(239, 68, 68, 0.35);
+    --badge-med-bg: rgba(245, 158, 11, 0.15);
+    --badge-med-text: #f59e0b;
+    --badge-med-border: rgba(245, 158, 11, 0.35);
 """
 
 _CSS_RULES = """
@@ -98,10 +122,10 @@ _CSS_RULES = """
     [data-testid="stHeader"] { background: transparent; }
     .block-container { padding-top: 2.5rem; }
 
-    h1, h2, h3, h4 { 
-        font-family: 'Playfair Display', Georgia, serif; 
-        color: var(--text); 
-        letter-spacing: -0.01em; 
+    h1, h2, h3, h4 {
+        font-family: 'Inter', system-ui, sans-serif;
+        color: var(--text);
+        letter-spacing: -0.02em;
         font-weight: 700;
     }
     p, span, label, li, [data-testid="stMarkdownContainer"] { 
@@ -112,28 +136,28 @@ _CSS_RULES = """
         color: var(--muted) !important; 
     }
 
-    /* Top App Bar (Replaced Hero) */
-    .hero { 
+    /* Top App Bar */
+    .hero {
         background-color: var(--surface) !important;
         border-bottom: 1px solid var(--border) !important;
-        padding: 20px 32px !important; 
-        margin-bottom: 28px !important; 
+        padding: 18px 32px !important;
+        margin-bottom: 28px !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
-        border-radius: 0px !important;
+        border-radius: 0 !important;
         margin-left: -2.5rem !important;
         margin-right: -2.5rem !important;
         margin-top: -2.5rem !important;
-        box-shadow: 0 4px 24px -12px rgba(0, 0, 0, 0.05) !important;
+        box-shadow: 0 4px 24px -12px rgba(0,0,0,0.05) !important;
     }
-    .hero h1 { 
-        color: var(--text) !important; 
-        margin: 0 !important; 
-        font-size: 1.75rem; 
+    .hero h1 {
+        color: var(--text) !important;
+        margin: 0 !important;
+        font-size: 2rem;
         font-weight: 700;
-        font-family: 'Playfair Display', Georgia, serif !important;
-        letter-spacing: -0.01em;
+        font-family: 'Inter', system-ui, sans-serif !important;
+        letter-spacing: -0.02em;
         text-transform: none !important;
     }
     .hero p { 
@@ -191,9 +215,9 @@ _CSS_RULES = """
     }
 
     /* Sidebar */
-    [data-testid="stSidebar"] { 
-        background-color: var(--surface) !important; 
-        border-right: 1px solid var(--border) !important; 
+    [data-testid="stSidebar"] {
+        background-color: var(--sidebar-bg) !important;
+        border-right: 1px solid var(--border) !important;
     }
     [data-testid="stSidebar"] hr, hr { border-color: var(--border); }
 
@@ -409,62 +433,61 @@ _CSS_RULES = """
     /* Hide Streamlit chrome for a clean look */
     #MainMenu, [data-testid="stToolbar"], [data-testid="stDecoration"], footer { visibility: hidden; }
 
-    /* ── KPI Cards (Stitch design) ────────────────────────────────────────── */
+    /* ── KPI Cards (Stitch exact) ──────────────────────────────────────────── */
     .kpi-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 28px; }
     .kpi-card {
         position: relative; background: var(--surface); border: 1px solid var(--border);
-        border-radius: 8px; padding: 22px 24px; overflow: hidden;
-        box-shadow: var(--shadow); transition: border-color .2s ease; min-height: 130px;
+        border-radius: 4px; padding: 24px; overflow: hidden;
+        box-shadow: var(--shadow); min-height: 130px;
     }
-    .kpi-total { border-left: 4px solid var(--primary); }
-    .kpi-high {
-        border-left: 4px solid var(--error) !important;
-        border-color: rgba(186,26,26,.2) !important;
-        background-color: var(--error-bg) !important;
+    .kpi-total { border: 1px solid var(--border); }
+    .kpi-high  { background: var(--error-bg)   !important; border: 1px solid rgba(186,26,26,.25) !important; }
+    .kpi-medium{ background: var(--warning-bg) !important; border: 1px solid rgba(144,77,0,.25)  !important; }
+    .kpi-high::before, .kpi-medium::before {
+        content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
     }
-    .kpi-medium {
-        border-left: 4px solid var(--warning) !important;
-        border-color: rgba(144,77,0,.2) !important;
-        background-color: var(--warning-bg) !important;
-    }
+    .kpi-high::before   { background: var(--error);   }
+    .kpi-medium::before { background: var(--warning);  }
     .kpi-watermark {
-        position: absolute; top: 8px; right: 10px;
-        font-family: 'Material Symbols Outlined'; font-size: 60px;
-        color: var(--text); opacity: .05;
-        font-variation-settings: 'FILL' 1, 'wght' 400;
+        position: absolute; top: 10px; right: 12px;
+        font-family: 'Material Symbols Outlined'; font-size: 64px;
+        color: var(--muted); opacity: .12;
+        font-variation-settings: 'FILL' 0, 'wght' 300;
         line-height: 1; pointer-events: none; user-select: none;
     }
     .kpi-label {
         font-size: .69rem; font-weight: 600; text-transform: uppercase;
         letter-spacing: .08em; color: var(--muted); margin-bottom: 8px;
     }
-    .kpi-high .kpi-label  { color: var(--error)   !important; }
-    .kpi-medium .kpi-label { color: var(--warning) !important; }
+    .kpi-high .kpi-label   { color: var(--on-error-container)     !important; }
+    .kpi-medium .kpi-label { color: var(--on-secondary-container) !important; }
     .kpi-value {
-        font-family: 'Playfair Display', Georgia, serif;
-        font-size: 2.4rem; font-weight: 700; color: var(--text);
-        letter-spacing: -.02em; line-height: 1.15; position: relative; z-index: 1;
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 2.5rem; font-weight: 700; color: var(--text);
+        letter-spacing: -.01em; line-height: 1.2; position: relative; z-index: 1;
     }
+    .kpi-high .kpi-value   { color: var(--on-error-container)     !important; }
+    .kpi-medium .kpi-value { color: var(--on-secondary-container) !important; }
     .kpi-subtitle {
         font-size: .74rem; color: var(--muted);
         margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
     }
-    .kpi-high .kpi-subtitle   { color: var(--error)   !important; border-color: rgba(186,26,26,.15) !important; }
-    .kpi-medium .kpi-subtitle { color: var(--warning) !important; border-color: rgba(144,77,0,.15)  !important; }
+    .kpi-high .kpi-subtitle   { color: var(--on-error-container)     !important; border-color: rgba(186,26,26,.2)  !important; }
+    .kpi-medium .kpi-subtitle { color: var(--on-secondary-container) !important; border-color: rgba(144,77,0,.2)   !important; }
 
-    /* ── Section Headers ──────────────────────────────────────────────────── */
+    /* ── Section Headers (Inter, not serif) ───────────────────────────────── */
     .section-hdr {
-        font-family: 'Playfair Display', Georgia, serif;
-        font-size: 1.28rem; font-weight: 600; color: var(--text);
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 1.5rem; font-weight: 700; color: var(--text);
         padding-bottom: 12px; border-bottom: 1px solid var(--border);
-        margin: 4px 0 20px 0; letter-spacing: -.01em;
+        margin: 4px 0 20px 0; letter-spacing: -.02em;
     }
 
-    /* ── Risk Cards (Stitch design) ───────────────────────────────────────── */
+    /* ── Risk Cards (Stitch exact) ────────────────────────────────────────── */
     .risk-card {
         position: relative; background: var(--surface); border: 1px solid var(--border);
         overflow: hidden; margin-bottom: 18px;
-        transition: border-color .2s ease; border-radius: 2px; box-shadow: var(--shadow);
+        transition: border-color .2s ease; border-radius: 2px;
     }
     .risk-card:hover { border-color: var(--muted); }
     .risk-card::before {
@@ -473,47 +496,48 @@ _CSS_RULES = """
     .risk-high::before   { background: var(--error);   }
     .risk-medium::before { background: var(--warning); }
     .risk-low::before    { background: var(--primary); }
-    .risk-inner { padding: 22px 26px 22px 30px; }
+    .risk-inner { padding: 24px 32px 24px 32px; }
     .risk-hdr {
         display: flex; justify-content: space-between;
-        align-items: flex-start; gap: 16px; margin-bottom: 16px;
+        align-items: flex-start; gap: 16px; margin-bottom: 20px;
     }
     .risk-title-area { flex: 1; }
     .risk-title {
-        font-family: 'Playfair Display', Georgia, serif !important;
-        font-size: 1.08rem !important; font-weight: 700 !important;
+        font-family: 'Inter', system-ui, sans-serif !important;
+        font-size: 1.18rem !important; font-weight: 600 !important;
         color: var(--text) !important; margin: 0 0 5px 0 !important;
         letter-spacing: -.01em; line-height: 1.3;
     }
     .risk-ref {
-        font-size: .77rem !important; font-style: italic !important;
+        font-size: .78rem !important; font-style: italic !important;
         color: var(--muted) !important; margin: 0 !important;
     }
     .risk-badge {
-        display: inline-block; padding: 3px 10px; border-radius: 3px;
+        display: inline-block; padding: 4px 12px; border-radius: 3px;
         font-size: .67rem; font-weight: 600; text-transform: uppercase;
-        letter-spacing: .1em; flex-shrink: 0; margin-top: 2px; white-space: nowrap;
+        letter-spacing: .08em; flex-shrink: 0; margin-top: 2px; white-space: nowrap;
     }
-    .badge-high   { background: rgba(186,26,26,.1); color: var(--error);   border: 1px solid rgba(186,26,26,.3); }
-    .badge-medium { background: rgba(144,77,0,.1);  color: var(--warning); border: 1px solid rgba(144,77,0,.3);  }
-    .badge-low    { background: rgba(0,59,27,.08);  color: var(--primary); border: 1px solid rgba(0,59,27,.2);   }
-    .risk-body { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .badge-high   { background: var(--badge-high-bg);  color: var(--badge-high-text);  border: 1px solid var(--badge-high-border);  }
+    .badge-medium { background: var(--badge-med-bg);   color: var(--badge-med-text);   border: 1px solid var(--badge-med-border);   }
+    .badge-low    { background: rgba(0,59,27,.08);     color: var(--primary);          border: 1px solid rgba(0,59,27,.25);         }
+    .risk-body { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     .risk-col-lbl {
         font-size: .67rem; font-weight: 600; text-transform: uppercase;
         letter-spacing: .1em; color: var(--muted); margin-bottom: 8px;
     }
-    .risk-action-lbl { color: var(--primary) !important; }
-    .risk-col-txt { font-size: .88rem; color: var(--text); line-height: 1.6; margin: 0; }
+    .risk-action-lbl { color: var(--primary) !important; display: flex; align-items: center; gap: 5px; }
+    .risk-col-txt { font-size: .9rem; color: var(--text); line-height: 1.65; margin: 0; }
     .risk-action-box {
         background: var(--surface-2);
-        border: 1px solid rgba(0,59,27,.12); border-left: 4px solid var(--primary);
-        border-radius: 4px; padding: 14px 16px;
+        border: 1px solid rgba(0,59,27,.35);
+        border-left: 4px solid var(--primary);
+        border-radius: 4px; padding: 16px;
     }
 """
 
 _FONT_IMPORT = (
     "@import url('https://fonts.googleapis.com/css2?"
-    "family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&"
+    "family=Inter:wght@400;500;600;700;800&"
     "family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');"
 )
 
@@ -550,7 +574,7 @@ st.set_page_config(
 
 # ── Session state (theme_mode must exist before the CSS is injected) ──────────
 if "theme_mode" not in st.session_state:
-    st.session_state.theme_mode = "System"
+    st.session_state.theme_mode = "Light"
 if "provider" not in st.session_state:
     st.session_state.provider = None
 if "api_key" not in st.session_state:
@@ -618,12 +642,11 @@ def run_subprocess(cmd):
 
 # ── Sidebar: appearance + connection setup ────────────────────────────────────
 st.sidebar.markdown(
-    '<div class="sidebar-header">'
-    '<span class="header-icon">gavel</span>'
-    '<div class="header-text">'
-    '<h2>Audit Portfolio</h2>'
-    '<span class="sub">Institutional Grade Engine</span>'
-    '</div>'
+    '<div style="padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:8px;">'
+    '<span style="font-family:\'Material Symbols Outlined\';font-size:22px;color:var(--primary);'
+    'font-variation-settings:\'FILL\' 1,\'wght\' 400;vertical-align:middle;margin-right:8px;">gavel</span>'
+    '<span style="font-family:Inter,sans-serif;font-size:.95rem;font-weight:700;'
+    'color:var(--text);letter-spacing:-.01em;">Compliance Engine</span>'
     '</div>',
     unsafe_allow_html=True,
 )
@@ -756,7 +779,7 @@ else:
 # ── Main area ────────────────────────────────────────────────────────────────
 st.markdown(
     f'<div class="hero">'
-    f'<h1>⚖️ Compliance Review Engine</h1>'
+    f'<h1>Compliance Analysis Report</h1>'
     f'<div class="hero-metadata">'
     f'<span class="hero-meta-label">Client: {client_name}</span>'
     f'<span class="hero-meta-sub">Processed: {run_date}</span>'
@@ -837,8 +860,14 @@ if nav_selection == "📋 Latest Report":
                 margin=dict(l=10, r=10, t=20, b=10),
                 showlegend=False,
             )
-            st.markdown('<div class="section-hdr">Risk Severity Overview</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div style="background:var(--surface);border:1px solid var(--border);'
+                'border-radius:8px;padding:24px 28px 8px 28px;margin-bottom:8px;">'
+                '<div class="section-hdr" style="margin-top:0;">Risk Severity Overview</div>',
+                unsafe_allow_html=True,
+            )
             st.plotly_chart(fig, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
             st.markdown('<div class="section-hdr">Detailed Findings</div>', unsafe_allow_html=True)
             for r in risks:
@@ -852,7 +881,7 @@ if nav_selection == "📋 Latest Report":
                         <div class="risk-hdr">
                           <div class="risk-title-area">
                             <h4 class="risk-title">{r.get('title', '')}</h4>
-                            <p class="risk-ref">{r.get('cra_reference', '')}</p>
+                            <p class="risk-ref">Ref: {r.get('cra_reference', '')}</p>
                           </div>
                           <span class="risk-badge {badge}">{sev}</span>
                         </div>
@@ -862,7 +891,10 @@ if nav_selection == "📋 Latest Report":
                             <p class="risk-col-txt">{r.get('client_exposure', '')}</p>
                           </div>
                           <div class="risk-action-box">
-                            <div class="risk-col-lbl risk-action-lbl">Recommended Action</div>
+                            <div class="risk-col-lbl risk-action-lbl">
+                              <span style="font-family:'Material Symbols Outlined';font-size:15px;font-variation-settings:'FILL' 1,'wght' 400;line-height:1;">check_circle</span>
+                              Recommended Action
+                            </div>
                             <p class="risk-col-txt">{r.get('action', '')}</p>
                           </div>
                         </div>
