@@ -1,4 +1,4 @@
-# ⚖️ Compliance Automation Engine
+# Compliance Automation Engine
 
 **Author: Arun Prabakar Vadaseri Rajendran**
 
@@ -105,7 +105,7 @@ compliance-automation-engine/
 
 ## About the author
 
-- Background in professional services and advisory work, where compliance review is a recurring, manual task this project aims to speed up.
+- Background in professional services, business, finance & operations analytics and advisory work, where compliance review is a recurring, manual task this project aims to speed up.
 - IBM-certified professional in data and AI.
 - LinkedIn: [linkedin.com/in/arun-prabakar-vadaseri-rajendran](https://www.linkedin.com/in/arun-prabakar-vadaseri-rajendran)
 
