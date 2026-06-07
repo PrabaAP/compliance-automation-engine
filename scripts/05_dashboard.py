@@ -230,15 +230,15 @@ _CSS_RULES = """
     }
     [data-testid="stSidebar"] hr, hr { border-color: var(--border); }
 
-    /* Tighten sidebar internal spacing */
-    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.3rem !important; }
+    /* Sidebar spacing — enough gap so section headers don't collide with widget labels */
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.55rem !important; }
     [data-testid="stSidebarUserContent"] { padding-top: 0.75rem !important; }
-    [data-testid="stSidebar"] hr { margin: 4px 0 !important; }
+    [data-testid="stSidebar"] hr { margin: 6px 0 !important; }
     [data-testid="stSidebar"] h3 {
         font-family: 'Inter', sans-serif !important;
-        font-size: 0.68rem !important; font-weight: 700 !important;
+        font-size: 0.66rem !important; font-weight: 700 !important;
         text-transform: uppercase !important; letter-spacing: 0.10em !important;
-        color: var(--muted) !important; margin: 4px 0 0 0 !important; padding: 0 !important;
+        color: var(--muted) !important; margin: 10px 0 2px 0 !important; padding: 0 !important;
     }
 
     /* Text inputs / selects / textareas */
@@ -440,6 +440,38 @@ _CSS_RULES = """
         margin-left: 0 !important;
     }
 
+    /* Dropdown option list — no per-item borders, hover highlight only */
+    [data-baseweb="menu"] { padding: 4px !important; }
+    [data-baseweb="menu"] li, [data-baseweb="menu"] [role="option"] {
+        border: none !important;
+        border-radius: 5px !important;
+        margin: 1px 0 !important;
+    }
+    [data-baseweb="menu"] [role="option"]:hover {
+        background-color: var(--surface-2) !important;
+        color: var(--text) !important;
+    }
+    [data-baseweb="menu"] [role="option"][aria-selected="true"] {
+        background-color: var(--glow) !important;
+        color: var(--primary) !important;
+        font-weight: 600 !important;
+    }
+
+    /* Password input — remove separator line before eye icon */
+    [data-testid="passwordInputVisibilityToggle"] {
+        border-left: none !important;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    /* Dropdown popover — ensure it overlays sidebar content correctly */
+    [data-baseweb="popover"] { z-index: 999 !important; }
+    [data-baseweb="popover"] > div { z-index: 999 !important; }
+
+    /* Ensure button text is white in both modes */
+    .stButton > button, .stButton > button span, .stButton > button p { color: #ffffff !important; }
+
     /* Hide Streamlit chrome but keep sidebar expand button visible */
     #MainMenu, [data-testid="stToolbar"], [data-testid="stDecoration"], footer { visibility: hidden; }
     [data-testid="stExpandSidebarButton"] {
@@ -568,58 +600,57 @@ _CSS_RULES = """
         color: var(--primary) !important;
     }
 
-    /* ── Appearance pill toggle (grid avoids Streamlit's flex !important) ─── */
+    /* ── Appearance pill: icon-only cells, CSS-driven (JS only fixes grid layout) */
     .st-key-theme_mode [role="radiogroup"] {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
         background: var(--surface-3) !important;
         border-radius: 8px !important;
         padding: 3px !important;
         gap: 2px !important;
-        width: 100% !important;
     }
-    .st-key-theme_mode [role="radiogroup"] > div {
-        width: auto !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        overflow: hidden !important;
-        background-color: transparent !important;
-        border-left: none !important;
-        border-radius: 6px !important;
-    }
-    .st-key-theme_mode [role="radiogroup"] > div:has(input:checked) {
-        background-color: transparent !important;
-        border-left: none !important;
-    }
-    .st-key-theme_mode [role="radiogroup"] label {
+    /* Each pill cell is a <label> in Streamlit 1.50 */
+    .st-key-theme_mode [role="radiogroup"] > label {
+        display: flex !important;
+        align-items: center !important;
         justify-content: center !important;
         border-left: none !important;
         border: none !important;
         border-radius: 6px !important;
-        padding: 6px 4px !important;
-        font-size: 0.78rem !important;
-        font-weight: 500 !important;
-        color: var(--muted) !important;
-        background: transparent !important;
-        width: 100% !important;
+        padding: 8px 4px !important;
+        cursor: pointer !important;
         transition: all 0.15s ease !important;
+        background: transparent !important;
     }
-    .st-key-theme_mode [role="radiogroup"] > div:has(input:checked) label {
-        background: var(--surface) !important;
-        color: var(--text) !important;
-        font-weight: 600 !important;
-        border-left: none !important;
-        border-radius: 6px !important;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.14) !important;
+    /* Hide radio circle and original text */
+    .st-key-theme_mode [role="radiogroup"] > label > div:first-child { display: none !important; }
+    .st-key-theme_mode [role="radiogroup"] > label [data-testid="stMarkdownContainer"] p {
+        display: none !important;
     }
-    .st-key-theme_mode [role="radiogroup"] label > div:first-child { display: none !important; }
-    .st-key-theme_mode > label {
-        font-size: 0.68rem !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.10em !important;
+    .st-key-theme_mode [role="radiogroup"] > label [data-testid="stMarkdownContainer"] {
+        display: flex !important; align-items: center !important; justify-content: center !important;
+    }
+    /* Show Material Symbol icon via ::after */
+    .st-key-theme_mode [role="radiogroup"] > label [data-testid="stMarkdownContainer"]::after {
+        font-family: 'Material Symbols Outlined' !important;
+        font-size: 20px !important; line-height: 1 !important;
+        font-variation-settings: 'FILL' 0, 'wght' 300 !important;
         color: var(--muted) !important;
-        margin-bottom: 5px !important;
+    }
+    .st-key-theme_mode [role="radiogroup"] > label:nth-child(1) [data-testid="stMarkdownContainer"]::after { content: "light_mode" !important; }
+    .st-key-theme_mode [role="radiogroup"] > label:nth-child(2) [data-testid="stMarkdownContainer"]::after { content: "brightness_auto" !important; }
+    .st-key-theme_mode [role="radiogroup"] > label:nth-child(3) [data-testid="stMarkdownContainer"]::after { content: "dark_mode" !important; }
+    /* Selected cell: white background + filled primary-colour icon */
+    .st-key-theme_mode [role="radiogroup"] > label:has(input:checked) {
+        background: var(--surface) !important;
+        box-shadow: 0 1px 4px rgba(0,0,0,.15) !important;
+    }
+    .st-key-theme_mode [role="radiogroup"] > label:has(input:checked) [data-testid="stMarkdownContainer"]::after {
+        font-variation-settings: 'FILL' 1, 'wght' 600 !important;
+        color: var(--primary) !important;
+    }
+    .st-key-theme_mode > label {
+        font-size: 0.68rem !important; font-weight: 700 !important;
+        text-transform: uppercase !important; letter-spacing: 0.10em !important;
+        color: var(--muted) !important; margin-bottom: 5px !important;
     }
 """
 
@@ -742,7 +773,7 @@ st.sidebar.markdown(
 
 nav_selection = st.sidebar.radio(
     "Navigation",
-    options=["📋 Latest Report", "📁 Audit Trail"],
+    options=["Latest Report", "Audit Trail"],
     label_visibility="collapsed",
 )
 
@@ -753,11 +784,11 @@ provider = st.sidebar.selectbox(
     "AI Provider",
     options=["groq", "openrouter", "anthropic", "openai", "custom"],
     format_func=lambda x: {
-        "groq":       "Groq — Free · Llama 3.3 70B",
-        "openrouter": "OpenRouter — Free tier",
-        "anthropic":  "Anthropic — Claude Opus",
-        "openai":     "OpenAI — GPT-4o",
-        "custom":     "Custom — OpenAI-compatible",
+        "groq":       "Groq  ·  Free  ·  Llama 3.3 70B",
+        "openrouter": "OpenRouter  ·  Free tier",
+        "anthropic":  "Anthropic  ·  Claude Opus",
+        "openai":     "OpenAI  ·  GPT-4o",
+        "custom":     "Custom  ·  Any OpenAI-compatible",
     }[x],
 )
 
@@ -780,7 +811,7 @@ key_label = {
 }
 api_key = st.sidebar.text_input(key_label[provider], type="password")
 
-if st.sidebar.button("🔌 Connect", use_container_width=True):
+if st.sidebar.button("Connect", use_container_width=True):
     if not api_key:
         st.sidebar.error("Enter an API key first.")
     elif provider == "custom" and (not custom_base_url or not custom_model):
@@ -813,7 +844,7 @@ st.sidebar.subheader("2. Upload Client Profile")
 uploaded = st.sidebar.file_uploader("Client profile (.txt)", type=["txt"])
 
 if st.sidebar.button(
-    "▶ Analyse Now",
+    "Analyse Now",
     disabled=not st.session_state.connected,
     use_container_width=True,
 ):
@@ -878,7 +909,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-if nav_selection == "📋 Latest Report":
+if nav_selection == "Latest Report":
     if report is None:
         st.info("Connect your AI and run your first analysis using the sidebar.")
     else:
@@ -1014,11 +1045,11 @@ else:
 # ── Footer ───────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.caption(
-    "Compliance Automation Engine — **Arun Prabakar Vadaseri Rajendran** · "
+    "Compliance Automation Engine  ·  **Arun Prabakar Vadaseri Rajendran**  ·  "
     "linkedin.com/in/arun-prabakar-vadaseri-rajendran"
 )
 
-# ── JS: appearance pill + nav radio active highlight ─────────────────────────
+# ── JS: appearance pill icons + nav radio active highlight ────────────────────
 # Streamlit emotion CSS uses !important on layout properties; inline setProperty
 # with 'important' priority is the only reliable override.
 components.html("""
@@ -1027,8 +1058,9 @@ components.html("""
   function applyStyles(){
     var d;
     try { d = window.parent.document; } catch(e){ return; }
+    var cs = getComputedStyle(d.documentElement);
 
-    /* ── Appearance pill ── */
+    /* ── Appearance pill: JS only forces grid display (CSS handles icons+selection) ── */
     var rg = d.querySelector('.st-key-theme_mode [role="radiogroup"]');
     if(rg){
       rg.style.setProperty('display','grid','important');
@@ -1037,52 +1069,31 @@ components.html("""
         item.style.setProperty('width','auto','important');
         item.style.setProperty('min-width','0','important');
         item.style.setProperty('border-left','none','important');
-        item.style.setProperty('background-color','transparent','important');
-        var lbl = item.querySelector('label');
-        if(!lbl) return;
-        var circle = lbl.children[0];
-        if(circle) circle.style.setProperty('display','none','important');
-        var ok = !!item.querySelector('input:checked');
-        var cs = getComputedStyle(d.documentElement);
-        var surface  = cs.getPropertyValue('--surface').trim()  || '#faf9f5';
-        var surfaceQ = cs.getPropertyValue('--surface-3').trim()|| '#efeeea';
-        var text     = cs.getPropertyValue('--text').trim()     || '#1b1c1a';
-        var muted    = cs.getPropertyValue('--muted').trim()    || '#404941';
-        lbl.style.setProperty('display','flex','important');
-        lbl.style.setProperty('align-items','center','important');
-        lbl.style.setProperty('justify-content','center','important');
-        lbl.style.setProperty('border-left','none','important');
-        lbl.style.setProperty('border-radius','6px','important');
-        lbl.style.setProperty('padding','6px 4px','important');
-        lbl.style.setProperty('font-size','0.78rem','important');
-        lbl.style.setProperty('font-weight', ok?'600':'500','important');
-        lbl.style.setProperty('background',  ok?surface:'transparent','important');
-        lbl.style.setProperty('color',        ok?text:muted,'important');
-        lbl.style.setProperty('box-shadow',   ok?'0 1px 4px rgba(0,0,0,.14)':'none','important');
-        lbl.style.setProperty('width','100%','important');
-        lbl.style.setProperty('transition','all 0.15s ease','important');
       });
       if(!rg._pillBound){
         rg._pillBound = true;
         rg.addEventListener('change', function(){ setTimeout(applyStyles,60); });
       }
+    } else {
+      setTimeout(applyStyles, 300);
     }
 
     /* ── Nav radio active highlight ── */
-    var cs2 = getComputedStyle(d.documentElement);
-    var surf2 = cs2.getPropertyValue('--surface-2').trim() || '#f4f4f0';
-    var gold  = cs2.getPropertyValue('--accent-gold').trim()|| '#904d00';
-    var prim  = cs2.getPropertyValue('--primary').trim()    || '#003b1b';
+    var surf2 = cs.getPropertyValue('--surface-2').trim()   || '#f4f4f0';
+    var gold  = cs.getPropertyValue('--accent-gold').trim() || '#904d00';
+    var prim  = cs.getPropertyValue('--primary').trim()     || '#003b1b';
+
     var navGroups = d.querySelectorAll('[data-testid="stSidebar"] [role="radiogroup"]');
     navGroups.forEach(function(group){
       if(group.closest('.st-key-theme_mode')) return;
       [...group.children].forEach(function(item){
-        var ok = !!item.querySelector('input:checked');
-        item.style.setProperty('background-color', ok?surf2:'transparent','important');
-        item.style.setProperty('border-left', ok?'4px solid '+gold:'4px solid transparent','important');
+        var ok  = !!item.querySelector('input:checked');
+        item.style.setProperty('background-color', ok ? surf2 : 'transparent','important');
+        item.style.setProperty('border-left', ok ? '4px solid '+gold : '4px solid transparent','important');
         item.style.setProperty('border-radius','0 6px 6px 0','important');
-        var lbl = item.querySelector('label');
-        if(lbl) lbl.style.setProperty('color', ok?prim:'','important');
+        /* In Streamlit 1.50, item may already be the <label> */
+        var lbl = (item.tagName === 'LABEL') ? item : item.querySelector('label');
+        if(lbl) lbl.style.setProperty('color', ok ? prim : '','important');
       });
       if(!group._navBound){
         group._navBound = true;
@@ -1091,7 +1102,7 @@ components.html("""
     });
   }
 
-  /* Run once after Streamlit renders, then watch for re-renders */
+  /* Run after Streamlit renders, then watch for re-renders */
   setTimeout(applyStyles, 700);
   setTimeout(applyStyles, 1500);
   var obs = new MutationObserver(function(){ applyStyles(); });
