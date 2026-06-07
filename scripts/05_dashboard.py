@@ -22,6 +22,7 @@ from pathlib import Path
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+import streamlit.components.v1 as components
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = PROJECT_ROOT / "scripts"
@@ -64,16 +65,17 @@ _LIGHT_VARS = """
     --badge-med-bg: #fe932c;
     --badge-med-text: #663500;
     --badge-med-border: rgba(144, 77, 0, 0.5);
+    --action-border: rgba(0, 59, 27, 0.35);
 """
 _DARK_VARS = """
     --bg: #0b0f0d;
     --surface: #121915;
-    --surface-2: #1a231e;
-    --surface-3: #222e26;
+    --surface-2: #1e2924;
+    --surface-3: #253329;
     --sidebar-bg: #121915;
-    --text: #f4f6f5;
-    --muted: #8b9b94;
-    --border: #232e27;
+    --text: #e8ede9;
+    --muted: #9aada5;
+    --border: #364c40;
     --primary: #10b981;
     --primary-deep: #047857;
     --shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
@@ -93,6 +95,13 @@ _DARK_VARS = """
     --badge-med-bg: rgba(245, 158, 11, 0.15);
     --badge-med-text: #f59e0b;
     --badge-med-border: rgba(245, 158, 11, 0.35);
+    --action-border: rgba(16, 185, 129, 0.22);
+    --badge-high-bg: rgba(239, 68, 68, 0.18);
+    --badge-high-text: #fca5a5;
+    --badge-high-border: rgba(239, 68, 68, 0.40);
+    --badge-med-bg: rgba(245, 158, 11, 0.18);
+    --badge-med-text: #fcd34d;
+    --badge-med-border: rgba(245, 158, 11, 0.40);
 """
 
 _CSS_RULES = """
@@ -221,6 +230,17 @@ _CSS_RULES = """
     }
     [data-testid="stSidebar"] hr, hr { border-color: var(--border); }
 
+    /* Tighten sidebar internal spacing */
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.3rem !important; }
+    [data-testid="stSidebarUserContent"] { padding-top: 0.75rem !important; }
+    [data-testid="stSidebar"] hr { margin: 4px 0 !important; }
+    [data-testid="stSidebar"] h3 {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.68rem !important; font-weight: 700 !important;
+        text-transform: uppercase !important; letter-spacing: 0.10em !important;
+        color: var(--muted) !important; margin: 4px 0 0 0 !important; padding: 0 !important;
+    }
+
     /* Text inputs / selects / textareas */
     [data-baseweb="input"], [data-baseweb="base-input"], [data-baseweb="select"] > div, [data-baseweb="textarea"] {
         background-color: var(--surface) !important; 
@@ -335,9 +355,9 @@ _CSS_RULES = """
     [data-testid="stExpander"]:hover {
         border-color: var(--primary) !important;
     }
-    [data-testid="stExpander"] summary { 
-        color: var(--text) !important; 
-        font-family: 'Playfair Display', Georgia, serif !important;
+    [data-testid="stExpander"] summary {
+        color: var(--text) !important;
+        font-family: 'Inter', system-ui, sans-serif !important;
         font-weight: 700 !important; 
         font-size: 1.15rem !important;
         padding: 14px 20px !important;
@@ -364,8 +384,8 @@ _CSS_RULES = """
         border-bottom: 2px solid var(--border) !important; 
         padding: 4px 4px 0px 4px !important;
     }
-    .stTabs [data-baseweb="tab"] { 
-        font-family: 'Playfair Display', Georgia, serif !important;
+    .stTabs [data-baseweb="tab"] {
+        font-family: 'Inter', system-ui, sans-serif !important;
         font-weight: 600 !important; 
         color: var(--muted) !important; 
         border-radius: 6px 6px 0 0 !important;
@@ -412,26 +432,28 @@ _CSS_RULES = """
         background-color: var(--surface-2) !important;
         color: var(--text) !important;
     }
-    [data-testid="stSidebar"] [role="radiogroup"] div[data-checked="true"] {
-        background-color: var(--surface-2) !important;
-        border-left: 4px solid var(--accent-gold) !important;
-        border-radius: 0 6px 6px 0 !important;
-        color: var(--primary) !important;
-        font-weight: 600 !important;
-        width: 100% !important;
-    }
-    [data-testid="stSidebar"] [role="radiogroup"] div[data-checked="true"] label {
-        color: var(--primary) !important;
-    }
-    [data-testid="stSidebar"] [role="radiogroup"] label div[role="presentation"] {
+    /* (active state now handled via :has(input:checked) at bottom of CSS) */
+    [data-testid="stSidebar"] [role="radiogroup"] label > div:first-child {
         display: none !important;
     }
-    [data-testid="stSidebar"] [role="radiogroup"] label div[data-testid="stMarkdownContainer"] {
+    [data-testid="stSidebar"] [role="radiogroup"] label > div:last-child {
         margin-left: 0 !important;
     }
 
-    /* Hide Streamlit chrome for a clean look */
+    /* Hide Streamlit chrome but keep sidebar expand button visible */
     #MainMenu, [data-testid="stToolbar"], [data-testid="stDecoration"], footer { visibility: hidden; }
+    [data-testid="stExpandSidebarButton"] {
+        visibility: visible !important;
+        border-radius: 8px !important;
+        transition: background 0.15s ease !important;
+    }
+    [data-testid="stExpandSidebarButton"]:hover { background: var(--surface-3) !important; }
+    [data-testid="stExpandSidebarButton"] svg { stroke: var(--text) !important; color: var(--text) !important; }
+    [data-testid="stSidebarCollapseButton"] { visibility: visible !important; }
+    [data-testid="stSidebarCollapseButton"] button { visibility: visible !important; border-radius: 8px !important; transition: background 0.15s ease !important; }
+    [data-testid="stSidebarCollapseButton"] button svg { stroke: var(--muted) !important; color: var(--muted) !important; }
+    [data-testid="stSidebarCollapseButton"] button:hover { background: var(--surface-3) !important; }
+    [data-testid="stSidebarCollapseButton"] button:hover svg { stroke: var(--text) !important; color: var(--text) !important; }
 
     /* ── KPI Cards (Stitch exact) ──────────────────────────────────────────── */
     .kpi-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 28px; }
@@ -529,9 +551,75 @@ _CSS_RULES = """
     .risk-col-txt { font-size: .9rem; color: var(--text); line-height: 1.65; margin: 0; }
     .risk-action-box {
         background: var(--surface-2);
-        border: 1px solid rgba(0,59,27,.35);
+        border: 1px solid var(--action-border);
         border-left: 4px solid var(--primary);
         border-radius: 4px; padding: 16px;
+    }
+
+    /* ── Nav radio active item (Streamlit 1.50: no data-checked, use :has) ── */
+    [data-testid="stSidebar"] [role="radiogroup"] > div:has(input:checked) {
+        background-color: var(--surface-2) !important;
+        border-left: 4px solid var(--accent-gold) !important;
+        border-radius: 0 6px 6px 0 !important;
+        font-weight: 600 !important;
+        width: 100% !important;
+    }
+    [data-testid="stSidebar"] [role="radiogroup"] > div:has(input:checked) label {
+        color: var(--primary) !important;
+    }
+
+    /* ── Appearance pill toggle (grid avoids Streamlit's flex !important) ─── */
+    .st-key-theme_mode [role="radiogroup"] {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        background: var(--surface-3) !important;
+        border-radius: 8px !important;
+        padding: 3px !important;
+        gap: 2px !important;
+        width: 100% !important;
+    }
+    .st-key-theme_mode [role="radiogroup"] > div {
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        background-color: transparent !important;
+        border-left: none !important;
+        border-radius: 6px !important;
+    }
+    .st-key-theme_mode [role="radiogroup"] > div:has(input:checked) {
+        background-color: transparent !important;
+        border-left: none !important;
+    }
+    .st-key-theme_mode [role="radiogroup"] label {
+        justify-content: center !important;
+        border-left: none !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 6px 4px !important;
+        font-size: 0.78rem !important;
+        font-weight: 500 !important;
+        color: var(--muted) !important;
+        background: transparent !important;
+        width: 100% !important;
+        transition: all 0.15s ease !important;
+    }
+    .st-key-theme_mode [role="radiogroup"] > div:has(input:checked) label {
+        background: var(--surface) !important;
+        color: var(--text) !important;
+        font-weight: 600 !important;
+        border-left: none !important;
+        border-radius: 6px !important;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.14) !important;
+    }
+    .st-key-theme_mode [role="radiogroup"] label > div:first-child { display: none !important; }
+    .st-key-theme_mode > label {
+        font-size: 0.68rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.10em !important;
+        color: var(--muted) !important;
+        margin-bottom: 5px !important;
     }
 """
 
@@ -548,7 +636,7 @@ def build_theme_css(mode: str) -> str:
         root = f":root {{ {_LIGHT_VARS} }}"
     elif mode == "Dark":
         root = f":root {{ {_DARK_VARS} }}"
-    else:  # System — follow the OS preference
+    else:  # Auto — follow the OS preference
         root = (
             f":root {{ {_LIGHT_VARS} }}\n"
             f"@media (prefers-color-scheme: dark) {{ :root {{ {_DARK_VARS} }} }}"
@@ -570,10 +658,11 @@ st.set_page_config(
     page_title="Compliance Review Engine",
     layout="wide",
     page_icon="⚖️",
+    initial_sidebar_state="expanded",
 )
 
 # ── Session state (theme_mode must exist before the CSS is injected) ──────────
-if "theme_mode" not in st.session_state:
+if "theme_mode" not in st.session_state or st.session_state.theme_mode == "System":
     st.session_state.theme_mode = "Light"
 if "provider" not in st.session_state:
     st.session_state.provider = None
@@ -664,11 +753,11 @@ provider = st.sidebar.selectbox(
     "AI Provider",
     options=["groq", "openrouter", "anthropic", "openai", "custom"],
     format_func=lambda x: {
-        "groq": "🟢 Groq — Free (Llama 3.3 70B)",
-        "openrouter": "🟢 OpenRouter — Free tier available",
-        "anthropic": "Claude (Anthropic API)",
-        "openai": "GPT-4o (OpenAI API)",
-        "custom": "➕ Custom — Any OpenAI-compatible provider",
+        "groq":       "Groq — Free · Llama 3.3 70B",
+        "openrouter": "OpenRouter — Free tier",
+        "anthropic":  "Anthropic — Claude Opus",
+        "openai":     "OpenAI — GPT-4o",
+        "custom":     "Custom — OpenAI-compatible",
     }[x],
 )
 
@@ -760,11 +849,12 @@ if st.sidebar.button(
                 st.code(output or "No output", language="text")
 
 st.sidebar.markdown("---")
-st.sidebar.selectbox(
-    "Appearance Mode",
-    options=["System", "Light", "Dark"],
+st.sidebar.markdown('<div class="appearance-marker" style="display:none;height:0;margin:0;padding:0;"></div>', unsafe_allow_html=True)
+st.sidebar.radio(
+    "Appearance",
+    options=["Light", "Auto", "Dark"],
     key="theme_mode",
-    format_func=lambda x: {"System": "🖥 System", "Light": "☀️ Light", "Dark": "🌙 Dark"}[x],
+    horizontal=True,
 )
 
 # Load latest report early to extract client name and processed date for the Top App Bar
@@ -927,3 +1017,89 @@ st.caption(
     "Compliance Automation Engine — **Arun Prabakar Vadaseri Rajendran** · "
     "linkedin.com/in/arun-prabakar-vadaseri-rajendran"
 )
+
+# ── JS: appearance pill + nav radio active highlight ─────────────────────────
+# Streamlit emotion CSS uses !important on layout properties; inline setProperty
+# with 'important' priority is the only reliable override.
+components.html("""
+<script>
+(function(){
+  function applyStyles(){
+    var d;
+    try { d = window.parent.document; } catch(e){ return; }
+
+    /* ── Appearance pill ── */
+    var rg = d.querySelector('.st-key-theme_mode [role="radiogroup"]');
+    if(rg){
+      rg.style.setProperty('display','grid','important');
+      rg.style.setProperty('grid-template-columns','repeat(3,1fr)','important');
+      [...rg.children].forEach(function(item){
+        item.style.setProperty('width','auto','important');
+        item.style.setProperty('min-width','0','important');
+        item.style.setProperty('border-left','none','important');
+        item.style.setProperty('background-color','transparent','important');
+        var lbl = item.querySelector('label');
+        if(!lbl) return;
+        var circle = lbl.children[0];
+        if(circle) circle.style.setProperty('display','none','important');
+        var ok = !!item.querySelector('input:checked');
+        var cs = getComputedStyle(d.documentElement);
+        var surface  = cs.getPropertyValue('--surface').trim()  || '#faf9f5';
+        var surfaceQ = cs.getPropertyValue('--surface-3').trim()|| '#efeeea';
+        var text     = cs.getPropertyValue('--text').trim()     || '#1b1c1a';
+        var muted    = cs.getPropertyValue('--muted').trim()    || '#404941';
+        lbl.style.setProperty('display','flex','important');
+        lbl.style.setProperty('align-items','center','important');
+        lbl.style.setProperty('justify-content','center','important');
+        lbl.style.setProperty('border-left','none','important');
+        lbl.style.setProperty('border-radius','6px','important');
+        lbl.style.setProperty('padding','6px 4px','important');
+        lbl.style.setProperty('font-size','0.78rem','important');
+        lbl.style.setProperty('font-weight', ok?'600':'500','important');
+        lbl.style.setProperty('background',  ok?surface:'transparent','important');
+        lbl.style.setProperty('color',        ok?text:muted,'important');
+        lbl.style.setProperty('box-shadow',   ok?'0 1px 4px rgba(0,0,0,.14)':'none','important');
+        lbl.style.setProperty('width','100%','important');
+        lbl.style.setProperty('transition','all 0.15s ease','important');
+      });
+      if(!rg._pillBound){
+        rg._pillBound = true;
+        rg.addEventListener('change', function(){ setTimeout(applyStyles,60); });
+      }
+    }
+
+    /* ── Nav radio active highlight ── */
+    var cs2 = getComputedStyle(d.documentElement);
+    var surf2 = cs2.getPropertyValue('--surface-2').trim() || '#f4f4f0';
+    var gold  = cs2.getPropertyValue('--accent-gold').trim()|| '#904d00';
+    var prim  = cs2.getPropertyValue('--primary').trim()    || '#003b1b';
+    var navGroups = d.querySelectorAll('[data-testid="stSidebar"] [role="radiogroup"]');
+    navGroups.forEach(function(group){
+      if(group.closest('.st-key-theme_mode')) return;
+      [...group.children].forEach(function(item){
+        var ok = !!item.querySelector('input:checked');
+        item.style.setProperty('background-color', ok?surf2:'transparent','important');
+        item.style.setProperty('border-left', ok?'4px solid '+gold:'4px solid transparent','important');
+        item.style.setProperty('border-radius','0 6px 6px 0','important');
+        var lbl = item.querySelector('label');
+        if(lbl) lbl.style.setProperty('color', ok?prim:'','important');
+      });
+      if(!group._navBound){
+        group._navBound = true;
+        group.addEventListener('change', function(){ setTimeout(applyStyles,60); });
+      }
+    });
+  }
+
+  /* Run once after Streamlit renders, then watch for re-renders */
+  setTimeout(applyStyles, 700);
+  setTimeout(applyStyles, 1500);
+  var obs = new MutationObserver(function(){ applyStyles(); });
+  setTimeout(function(){
+    var sb = null;
+    try { sb = window.parent.document.querySelector('[data-testid="stSidebar"]'); } catch(e){}
+    if(sb) obs.observe(sb, {childList:true, subtree:true, attributes:false});
+  }, 1000);
+})();
+</script>
+""", height=0)
