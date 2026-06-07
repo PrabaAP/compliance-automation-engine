@@ -232,21 +232,28 @@ _CSS_RULES = """
 
     /* Sidebar spacing — enough gap so section headers don't collide with widget labels */
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.55rem !important; }
+    [data-testid="stSidebar"] .stSelectbox > label,
+    [data-testid="stSidebar"] .stFileUploader > label { margin-top: 10px !important; display: block !important; }
     [data-testid="stSidebarUserContent"] { padding-top: 0.75rem !important; }
     [data-testid="stSidebar"] hr { margin: 6px 0 !important; }
     [data-testid="stSidebar"] h3 {
         font-family: 'Inter', sans-serif !important;
         font-size: 0.66rem !important; font-weight: 700 !important;
         text-transform: uppercase !important; letter-spacing: 0.10em !important;
-        color: var(--muted) !important; margin: 10px 0 2px 0 !important; padding: 0 !important;
+        color: var(--muted) !important; margin: 12px 0 8px 0 !important; padding: 0 !important;
     }
 
     /* Text inputs / selects / textareas */
-    [data-baseweb="input"], [data-baseweb="base-input"], [data-baseweb="select"] > div, [data-baseweb="textarea"] {
-        background-color: var(--surface) !important; 
-        border: 1px solid var(--border) !important; 
-        border-radius: 6px !important; 
+    [data-baseweb="input"], [data-baseweb="select"] > div, [data-baseweb="textarea"] {
+        background-color: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 6px !important;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    [data-baseweb="base-input"] {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
     }
     [data-baseweb="input"]:focus-within, [data-baseweb="select"] > div:focus-within, [data-baseweb="textarea"]:focus-within {
         border-color: var(--accent-gold) !important;
@@ -255,12 +262,13 @@ _CSS_RULES = """
     input, textarea, [data-baseweb="select"] div { color: var(--text) !important; }
     input::placeholder, textarea::placeholder { color: var(--muted) !important; }
 
-    /* Dropdown popovers */
-    [data-baseweb="popover"] div, [data-baseweb="menu"], [role="listbox"] { 
-        background-color: var(--surface) !important; 
+    /* Dropdown popovers — outer shell only gets the border */
+    [data-baseweb="popover"] > div, [data-baseweb="menu"], [role="listbox"] {
+        background-color: var(--surface) !important;
         border: 1px solid var(--border) !important;
         border-radius: 6px !important;
     }
+    [data-baseweb="popover"] div div { border: none !important; background: transparent !important; }
     [data-baseweb="popover"] li, [role="option"] { color: var(--text) !important; }
 
     /* File uploader */
@@ -606,6 +614,7 @@ _CSS_RULES = """
         border-radius: 8px !important;
         padding: 3px !important;
         gap: 2px !important;
+        width: 100% !important;
     }
     /* Each pill cell is a <label> in Streamlit 1.50 */
     .st-key-theme_mode [role="radiogroup"] > label {
@@ -647,10 +656,17 @@ _CSS_RULES = """
         font-variation-settings: 'FILL' 1, 'wght' 600 !important;
         color: var(--primary) !important;
     }
+    .st-key-theme_mode {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
     .st-key-theme_mode > label {
         font-size: 0.68rem !important; font-weight: 700 !important;
         text-transform: uppercase !important; letter-spacing: 0.10em !important;
         color: var(--muted) !important; margin-bottom: 5px !important;
+        text-align: center !important; width: 100% !important;
     }
 """
 
@@ -1065,6 +1081,7 @@ components.html("""
     if(rg){
       rg.style.setProperty('display','grid','important');
       rg.style.setProperty('grid-template-columns','repeat(3,1fr)','important');
+      rg.style.setProperty('width','100%','important');
       [...rg.children].forEach(function(item){
         item.style.setProperty('width','auto','important');
         item.style.setProperty('min-width','0','important');
@@ -1076,6 +1093,17 @@ components.html("""
       }
     } else {
       setTimeout(applyStyles, 300);
+    }
+
+    /* ── Center Appearance section (emotion CSS blocks our flex rule, so use inline) ── */
+    var tm = d.querySelector('.st-key-theme_mode');
+    if(tm){
+      tm.style.setProperty('width','100%','important');
+      tm.style.setProperty('display','flex','important');
+      tm.style.setProperty('flex-direction','column','important');
+      tm.style.setProperty('align-items','center','important');
+      var tmLabel = tm.querySelector('label');
+      if(tmLabel) tmLabel.style.setProperty('text-align','center','important');
     }
 
     /* ── Nav radio active highlight ── */
