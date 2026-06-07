@@ -656,17 +656,16 @@ _CSS_RULES = """
         font-variation-settings: 'FILL' 1, 'wght' 600 !important;
         color: var(--primary) !important;
     }
-    .st-key-theme_mode {
-        width: 100% !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-    }
+    .st-key-theme_mode { width: 100% !important; }
+    .st-key-theme_mode .stRadio { width: 100% !important; }
     .st-key-theme_mode > label {
         font-size: 0.68rem !important; font-weight: 700 !important;
         text-transform: uppercase !important; letter-spacing: 0.10em !important;
         color: var(--muted) !important; margin-bottom: 5px !important;
-        text-align: center !important; width: 100% !important;
+    }
+    /* Keep selected icon centred within its cell */
+    .st-key-theme_mode [role="radiogroup"] > label:has(input:checked) {
+        justify-content: center !important;
     }
 """
 
@@ -1095,15 +1094,12 @@ components.html("""
       setTimeout(applyStyles, 300);
     }
 
-    /* ── Center Appearance section (emotion CSS blocks our flex rule, so use inline) ── */
+    /* ── Full-width pill: expand .stRadio wrapper (emotion constrains it to ~118px) ── */
     var tm = d.querySelector('.st-key-theme_mode');
     if(tm){
       tm.style.setProperty('width','100%','important');
-      tm.style.setProperty('display','flex','important');
-      tm.style.setProperty('flex-direction','column','important');
-      tm.style.setProperty('align-items','center','important');
-      var tmLabel = tm.querySelector('label');
-      if(tmLabel) tmLabel.style.setProperty('text-align','center','important');
+      var stRadio = tm.querySelector('.stRadio');
+      if(stRadio) stRadio.style.setProperty('width','100%','important');
     }
 
     /* ── Nav radio active highlight ── */
