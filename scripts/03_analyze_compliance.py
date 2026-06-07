@@ -1,6 +1,6 @@
 """
 Core analysis. Sends PDFs + client profile to AI, returns structured risk JSON.
-Requires provider and api_key to be passed — never reads them from env.
+Requires provider and api_key to be passed; never reads them from env.
 
 Importable: exposes run_analysis(provider, api_key) and parse_json_response(text).
 """
@@ -101,7 +101,7 @@ For each risk provide:
 - title: 4 words maximum
 - severity: HIGH, MEDIUM, or LOW
 - cra_reference: specific CRA section from the documents above
-- client_exposure: one sentence — why THIS client is specifically at risk
+- client_exposure: one sentence explaining why THIS client is specifically at risk
 - action: one concrete next step
 
 Return ONLY valid JSON, no other text:
@@ -138,7 +138,7 @@ def _save_audit_row(run_date, client_name, provider, model, pdf_count, risk_coun
 
 
 def _print_risk_table(client_name, risks):
-    table = Table(title=f"Compliance Risk Checklist — {client_name}")
+    table = Table(title=f"Compliance Risk Checklist: {client_name}")
     table.add_column("Severity", style="bold")
     table.add_column("Title")
     table.add_column("CRA Reference", style="italic")

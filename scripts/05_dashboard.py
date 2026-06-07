@@ -1,5 +1,5 @@
 """
-Compliance Review Engine — Streamlit dashboard.
+Compliance Review Engine · Streamlit dashboard.
 
 The user connects their own AI provider (key lives only in this session),
 uploads a client profile, and runs the full compliance pipeline. Results and
@@ -230,7 +230,7 @@ _CSS_RULES = """
     }
     [data-testid="stSidebar"] hr, hr { border-color: var(--border); }
 
-    /* Sidebar spacing — enough gap so section headers don't collide with widget labels */
+    /* Sidebar spacing: enough gap so section headers don't collide with widget labels */
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.55rem !important; }
     [data-testid="stSidebar"] .stSelectbox > label,
     [data-testid="stSidebar"] .stFileUploader > label { margin-top: 10px !important; display: block !important; }
@@ -262,7 +262,7 @@ _CSS_RULES = """
     input, textarea, [data-baseweb="select"] div { color: var(--text) !important; }
     input::placeholder, textarea::placeholder { color: var(--muted) !important; }
 
-    /* Dropdown popovers — outer shell only gets the border */
+    /* Dropdown popovers: outer shell only gets the border */
     [data-baseweb="popover"] > div, [data-baseweb="menu"], [role="listbox"] {
         background-color: var(--surface) !important;
         border: 1px solid var(--border) !important;
@@ -448,7 +448,7 @@ _CSS_RULES = """
         margin-left: 0 !important;
     }
 
-    /* Dropdown option list — no per-item borders, hover highlight only */
+    /* Dropdown option list: no per-item borders, hover highlight only */
     [data-baseweb="menu"] { padding: 4px !important; }
     [data-baseweb="menu"] li, [data-baseweb="menu"] [role="option"] {
         border: none !important;
@@ -465,7 +465,7 @@ _CSS_RULES = """
         font-weight: 600 !important;
     }
 
-    /* Password input — remove separator line before eye icon */
+    /* Password input: remove separator line before eye icon */
     [data-testid="passwordInputVisibilityToggle"] {
         border-left: none !important;
         border: none !important;
@@ -473,7 +473,7 @@ _CSS_RULES = """
         box-shadow: none !important;
     }
 
-    /* Dropdown popover — ensure it overlays sidebar content correctly */
+    /* Dropdown popover: ensure it overlays sidebar content correctly */
     [data-baseweb="popover"] { z-index: 999 !important; }
     [data-baseweb="popover"] > div { z-index: 999 !important; }
 
@@ -682,7 +682,7 @@ def build_theme_css(mode: str) -> str:
         root = f":root {{ {_LIGHT_VARS} }}"
     elif mode == "Dark":
         root = f":root {{ {_DARK_VARS} }}"
-    else:  # Auto — follow the OS preference
+    else:  # Auto: follow the OS preference
         root = (
             f":root {{ {_LIGHT_VARS} }}\n"
             f"@media (prefers-color-scheme: dark) {{ :root {{ {_DARK_VARS} }} }}"
@@ -846,7 +846,7 @@ if st.sidebar.button("Connect", use_container_width=True):
             st.sidebar.success("✅ Connected")
         else:
             st.session_state.connected = False
-            st.sidebar.error("Connection failed — check your key and URL")
+            st.sidebar.error("Connection failed. Check your key and URL.")
             with st.sidebar.expander("Details"):
                 st.code(output or "No output", language="text")
 
@@ -888,7 +888,7 @@ if st.sidebar.button(
         with st.spinner(f"Analysing with {st.session_state.provider}..."):
             ok, output = run_subprocess(cmd)
         if ok:
-            st.success("Analysis complete — see the Latest Report tab")
+            st.success("Analysis complete. See the Latest Report tab.")
         else:
             st.error("Analysis failed.")
             with st.expander("Details"):

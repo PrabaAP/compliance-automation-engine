@@ -1,6 +1,6 @@
 """
 Central AI routing module. All scripts import call_ai() from here.
-No API keys are stored here — the key is always passed as a parameter.
+No API keys are stored here; the key is always passed as a parameter.
 
 Every supported provider except Anthropic speaks the OpenAI chat-completions
 format, so a single OpenAI-compatible client handles Groq, OpenRouter, OpenAI

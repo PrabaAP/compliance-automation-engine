@@ -34,8 +34,8 @@ def main():
             custom_model=args.model,
         )
         model_name = get_model_name(args.provider, args.model)
-        print(f"✅ {args.provider} connected — model: {model_name}")
-        # The reply itself is not asserted on — providers phrase confirmations
+        print(f"✅ {args.provider} connected · model: {model_name}")
+        # The reply itself is not asserted on; providers phrase confirmations
         # differently. A clean return from call_ai is the success signal.
         if reply:
             print(f"   Response: {reply.strip()[:80]}")
@@ -43,7 +43,7 @@ def main():
     except (ValueError, ConnectionError) as exc:
         print(f"❌ {args.provider} connection failed: {exc}")
         sys.exit(1)
-    except Exception as exc:  # noqa: BLE001 — surface anything unexpected clearly
+    except Exception as exc:  # noqa: BLE001
         print(f"❌ {args.provider} connection failed (unexpected error): {exc}")
         sys.exit(1)
 

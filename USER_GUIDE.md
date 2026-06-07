@@ -1,4 +1,4 @@
-# User Guide — Compliance Automation Engine
+# User Guide · Compliance Automation Engine
 
 A plain-English guide for accounting and advisory staff. No coding needed. If the dashboard is already open in your browser, you are ready to start.
 
@@ -7,7 +7,7 @@ A plain-English guide for accounting and advisory staff. No coding needed. If th
 ## Quick start (about 3 minutes)
 
 1. **Open the dashboard.** Your colleague or IT will have started it; you will see a page titled *Compliance Review Engine* with a sidebar on the left.
-2. **Connect your AI** (sidebar step 1). Pick **Groq** from the dropdown — it is free — paste your Groq key, and click **Connect**. A green *Connected* message confirms it worked.
+2. **Connect your AI** (sidebar step 1). Pick **Groq** from the dropdown (it is free), paste your Groq key, and click **Connect**. A green *Connected* message confirms it worked.
 3. **Upload the client file and analyse** (sidebar step 2). Upload the client's profile as a `.txt` file, then click **Analyse Now**. In under a minute the *Latest Report* tab fills in with the client's compliance risks.
 
 That is the whole loop: connect, upload, analyse.
@@ -34,10 +34,10 @@ The tool does not come with its own AI. You connect one using a key, which is li
 
 After an analysis, the **📋 Latest Report** tab shows four things.
 
-- **The three cards at the top** — *Total Risks*, *High Severity*, and *Medium Severity* — give you the headline counts at a glance.
+- **The three cards at the top** (*Total Risks*, *High Severity*, and *Medium Severity*) give you the headline counts at a glance.
 - **The bar chart** lists each risk, coloured by how serious it is: red for HIGH, amber for MEDIUM, green for LOW. Longer red bars are the items to look at first.
 - **The expandable risk cards** sit below the chart. Click any one to open it. Each card shows the risk title, the exact CRA reference it relates to, why *this* client is exposed, and a recommended action highlighted in a coloured box.
-- **The 📁 Audit Trail tab** keeps a running log of every analysis you have run — the date, client, which AI was used, how many PDFs were read, and how many risks were found. This is your record for quality and review purposes.
+- **The 📁 Audit Trail tab** keeps a running log of every analysis you have run: the date, client, which AI was used, how many PDFs were read, and how many risks were found. This is your record for quality and review purposes.
 
 Each analysis is also saved automatically as a report file and a short summary, so nothing is lost when you close the app.
 
@@ -47,7 +47,7 @@ Each analysis is also saved automatically as a report file and a short summary, 
 
 If your firm has set up the optional n8n automation, the engine can turn each analysis into a client email for you.
 
-- The email lands in your **Gmail Drafts** — it is never sent automatically, so you always review and edit before anything goes out.
+- The email lands in your **Gmail Drafts** and is never sent automatically, so you always review and edit before anything goes out.
 - It usually appears within about a minute of the analysis finishing.
 - The draft opens warmly, lists only the HIGH and MEDIUM risks in plain language, asks one clarifying question per risk, and suggests a 30-minute call. Treat it as a strong first draft, not a final send.
 
@@ -55,7 +55,7 @@ If your firm has set up the optional n8n automation, the engine can turn each an
 
 ## Troubleshooting
 
-**"Connection failed — check your key and URL."**
+**"Connection failed. Check your key and URL."**
 The key was mistyped, expired, or has a space at the end. Copy it again from your provider's site and re-paste. For a Custom provider, double-check the base URL and model name too.
 
 **The Analyse button is greyed out.**

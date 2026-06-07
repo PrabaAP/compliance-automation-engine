@@ -10,7 +10,7 @@ A GenAI tool for accounting and advisory firms. It reads CRA regulatory PDFs, cr
 
 ## What this does
 
-Drop your CRA regulation PDFs into `docs/regulations/`, upload a client business profile, and the engine asks your chosen AI to act as a senior compliance auditor: it returns exactly five ranked risks — each with a severity, the CRA reference it comes from, why this specific client is exposed, and a concrete next step. Every run is saved as a JSON report, a plain-text summary, and an audit-trail row in SQLite, and an optional n8n schedule turns the summary into a polite client email saved to Gmail Drafts.
+Drop your CRA regulation PDFs into `docs/regulations/`, upload a client business profile, and the engine asks your chosen AI to act as a senior compliance auditor: it returns exactly five ranked risks, each with a severity, the CRA reference it comes from, why this specific client is exposed, and a concrete next step. Every run is saved as a JSON report, a plain-text summary, and an audit-trail row in SQLite, and an optional n8n schedule turns the summary into a polite client email saved to Gmail Drafts.
 
 The AI connection is **bring-your-own-key**: you enter your key in the dashboard, it lives in the session only, and it is never written to `.env`, to the code, or to the repository.
 
@@ -20,8 +20,8 @@ You pick one provider at setup. Two of them have a genuinely free tier with no c
 
 | Provider | Free tier | Model | Notes |
 |----------|-----------|-------|-------|
-| **Groq** | ✅ Yes — no card | `llama-3.3-70b-versatile` | Recommended. 14,400 free requests/day |
-| **OpenRouter** | ✅ Yes — no card | `meta-llama/llama-3.3-70b-instruct:free` | Free community models available |
+| **Groq** | ✅ Yes (no card) | `llama-3.3-70b-versatile` | Recommended. 14,400 free requests/day |
+| **OpenRouter** | ✅ Yes (no card) | `meta-llama/llama-3.3-70b-instruct:free` | Free community models available |
 | **Anthropic** | Pay-per-use | `claude-opus-4-8` | Requires API billing |
 | **OpenAI** | Pay-per-use | `gpt-4o` | Requires API billing |
 | **Custom** | Depends on provider | Your choice | Any OpenAI-compatible endpoint (Mistral, Together, Azure OpenAI, local servers, …) |

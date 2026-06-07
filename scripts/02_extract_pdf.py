@@ -61,7 +61,7 @@ def extract_text_from_folder(folder_path: str) -> str:
         for pdf_path in pdf_files:
             try:
                 reader = PdfReader(str(pdf_path))
-            except Exception as exc:  # noqa: BLE001 — a malformed file shouldn't kill the run
+            except Exception as exc:  # noqa: BLE001 (a malformed file should not kill the run)
                 console.print(f"[yellow]⚠ Skipping unreadable PDF {pdf_path.name}: {exc}[/yellow]")
                 continue
 
@@ -82,7 +82,7 @@ def extract_text_from_folder(folder_path: str) -> str:
             for n, page in enumerate(reader.pages, start=1):
                 progress.update(
                     task,
-                    description=f"Reading page {n} of {total_pages} — {pdf_path.name}",
+                    description=f"Reading page {n} of {total_pages}: {pdf_path.name}",
                     completed=n,
                 )
                 text = page.extract_text() or ""

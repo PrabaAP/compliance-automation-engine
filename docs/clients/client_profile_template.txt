@@ -7,7 +7,7 @@ COMPANY OVERVIEW
 ─────────────────────────────────────────
 
 Company Name:       Meridian Advisory Group Inc.
-Business Type:      Professional services — accounting and tax consulting
+Business Type:      Professional services, accounting and tax consulting
 Province:           Ontario, Canada
 Year Incorporated:  2017
 Fiscal Year:        January 1 to December 31, 2024
@@ -16,7 +16,7 @@ HST/GST Number:     89234 7812 RT0001 (registered, remits quarterly)
 Corporate Status:   Canadian-Controlled Private Corporation (CCPC)
 
 ─────────────────────────────────────────
-FINANCIAL SUMMARY (FY 2024 YTD — January to June)
+FINANCIAL SUMMARY (FY 2024 YTD, January to June)
 ─────────────────────────────────────────
 
 Total Revenue:                  $1,048,000 CAD (annualised projection: ~$2.1M)
@@ -44,24 +44,24 @@ Notes on contractors:
 TAX FILING HISTORY
 ─────────────────────────────────────────
 
-T2 Corporate Return (FY2023):   Filed on time — March 2024
+T2 Corporate Return (FY2023):   Filed on time, March 2024
 T4 Slips (FY2023):              Two employees' T4 slips were filed 11 days late (February 2024)
                                  CRA penalty notice received, paid
 HST Returns (FY2024):           Q1 filed and paid. Q2 not yet due.
 Payroll Remittances:            Up to date
 
 ─────────────────────────────────────────
-EXPENSES — NOTABLE ITEMS
+EXPENSES: NOTABLE ITEMS
 ─────────────────────────────────────────
 
 Meals and Entertainment:        $34,800 CAD claimed as business expense (FY2024 YTD)
                                  Input Tax Credits (HST) claimed on full amount
                                  (50% restriction rule under ITA Section 67.1 applies)
 
-Home Office (Director):         Director claims home office deduction — no T2200 form documented
+Home Office (Director):         Director claims home office deduction; no T2200 form documented
                                  for FY2024
 
-Vehicle Expenses:               One company vehicle — logbook not maintained for FY2024
+Vehicle Expenses:               One company vehicle; logbook not maintained for FY2024
 
 ─────────────────────────────────────────
 NOTES FROM CLIENT MEETING (May 2024)
@@ -70,7 +70,7 @@ NOTES FROM CLIENT MEETING (May 2024)
 - Director mentioned they "handle payroll themselves" and have not used a third-party
   payroll processor since 2022
 - Company plans to hire two additional full-time staff by September 2024
-- Director asked about expanding services to US clients — no non-resident withholding
+- Director asked about expanding services to US clients; no non-resident withholding
   tax advice has been given yet
 - Client expressed uncertainty about whether contractor arrangements need to be revisited
 
