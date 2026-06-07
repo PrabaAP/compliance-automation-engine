@@ -32,112 +32,489 @@ DB_PATH = PROJECT_ROOT / "database" / "audit.db"
 TEST_SCRIPT = SCRIPTS_DIR / "01_test_connection.py"
 PIPELINE_SCRIPT = SCRIPTS_DIR / "04_run_pipeline.py"
 
-SEVERITY_COLOR = {"HIGH": "#DC2626", "MEDIUM": "#D97706", "LOW": "#059669"}
+SEVERITY_COLOR = {"HIGH": "#991B1B", "MEDIUM": "#B45309", "LOW": "#14532D"}
 SEVERITY_WEIGHT = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
 
 # ── Theme palettes (CSS custom properties) ───────────────────────────────────
 _LIGHT_VARS = """
-    --bg: #EDF1F8;
-    --surface: #FFFFFF;
-    --surface-2: #F2F5FB;
-    --text: #0F1B2D;
-    --muted: #5B6B86;
-    --border: #E1E7F1;
-    --primary: #2F54EB;
-    --primary-deep: #15327A;
-    --shadow: 0 1px 2px rgba(16,24,40,.04), 0 6px 20px rgba(16,24,40,.07);
+    --bg: #faf9f5;
+    --surface: #ffffff;
+    --surface-2: #efeeea;
+    --text: #1b1c1a;
+    --muted: #404941;
+    --border: #c0c9be;
+    --primary: #003b1b;
+    --primary-deep: #14532d;
+    --shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+    --accent-gold: #904d00;
+    --glow: rgba(0, 59, 27, 0.08);
+    --error: #ba1a1a;
+    --error-bg: rgba(186, 26, 26, 0.04);
+    --warning: #904d00;
+    --warning-bg: rgba(144, 77, 0, 0.04);
 """
 _DARK_VARS = """
-    --bg: #0A0F1A;
-    --surface: #121C2D;
-    --surface-2: #182640;
-    --text: #E8ECF4;
-    --muted: #94A3BB;
-    --border: #233149;
-    --primary: #6E8BFF;
-    --primary-deep: #1A2C58;
-    --shadow: 0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.5);
+    --bg: #0b0f0d;
+    --surface: #121915;
+    --surface-2: #1a231e;
+    --text: #f4f6f5;
+    --muted: #8b9b94;
+    --border: #232e27;
+    --primary: #10b981;
+    --primary-deep: #047857;
+    --shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    --glow: rgba(16, 185, 129, 0.12);
+    --accent-gold: #f59e0b;
+    --error: #ef4444;
+    --error-bg: rgba(239, 68, 68, 0.06);
+    --warning: #f59e0b;
+    --warning-bg: rgba(245, 158, 11, 0.06);
 """
 
 _CSS_RULES = """
-    html, body, .stApp, [data-testid="stSidebar"] {
-        font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
     }
-    .stApp, [data-testid="stAppViewContainer"] { background-color: var(--bg); color: var(--text); }
+    ::-webkit-scrollbar-track {
+        background: var(--bg);
+    }
+    ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--muted);
+    }
+
+    html, body, .stApp, [data-testid="stSidebar"] {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .stApp, [data-testid="stAppViewContainer"] { 
+        background-color: var(--bg); 
+        color: var(--text); 
+    }
     [data-testid="stHeader"] { background: transparent; }
-    .block-container { padding-top: 2.4rem; }
+    .block-container { padding-top: 2.5rem; }
 
-    h1, h2, h3 { font-family: 'IBM Plex Serif', Georgia, serif; color: var(--text); letter-spacing: -0.015em; }
-    p, span, label, li, [data-testid="stMarkdownContainer"] { color: var(--text); }
-    [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * { color: var(--muted) !important; }
+    h1, h2, h3, h4 { 
+        font-family: 'Playfair Display', Georgia, serif; 
+        color: var(--text); 
+        letter-spacing: -0.01em; 
+        font-weight: 700;
+    }
+    p, span, label, li, [data-testid="stMarkdownContainer"] { 
+        color: var(--text); 
+        font-family: 'Inter', system-ui, sans-serif;
+    }
+    [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * { 
+        color: var(--muted) !important; 
+    }
 
-    /* Hero banner */
-    .hero { background: linear-gradient(135deg, var(--primary-deep) 0%, var(--primary) 100%);
-            padding: 30px 34px; border-radius: 18px; margin-bottom: 22px; box-shadow: var(--shadow); }
-    .hero h1 { color: #FFFFFF !important; margin: 0; font-size: 2.15rem; }
-    .hero p  { color: rgba(255,255,255,0.84); margin: 8px 0 0; font-size: 1.02rem; }
+    /* Top App Bar (Replaced Hero) */
+    .hero { 
+        background-color: var(--surface) !important;
+        border-bottom: 1px solid var(--border) !important;
+        padding: 20px 32px !important; 
+        margin-bottom: 28px !important; 
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-radius: 0px !important;
+        margin-left: -2.5rem !important;
+        margin-right: -2.5rem !important;
+        margin-top: -2.5rem !important;
+        box-shadow: 0 4px 24px -12px rgba(0, 0, 0, 0.05) !important;
+    }
+    .hero h1 { 
+        color: var(--text) !important; 
+        margin: 0 !important; 
+        font-size: 1.75rem; 
+        font-weight: 700;
+        font-family: 'Playfair Display', Georgia, serif !important;
+        letter-spacing: -0.01em;
+        text-transform: none !important;
+    }
+    .hero p { 
+        display: none !important; /* Hide old description, handled by meta */
+    }
+    .hero-metadata {
+        display: flex !important;
+        flex-direction: column !important;
+        text-align: right !important;
+    }
+    .hero-meta-label {
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+        color: var(--text) !important;
+    }
+    .hero-meta-sub {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.72rem !important;
+        color: var(--muted) !important;
+        margin-top: 2px !important;
+    }
+
+    /* Sidebar Header */
+    .sidebar-header {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding-bottom: 20px !important;
+        border-bottom: 1px solid var(--border) !important;
+        margin-bottom: 20px !important;
+    }
+    .sidebar-header .header-icon {
+        font-family: 'Material Symbols Outlined' !important;
+        font-size: 28px !important;
+        color: var(--primary) !important;
+        font-variation-settings: 'FILL' 1, 'wght' 400 !important;
+        display: inline-block;
+    }
+    .sidebar-header .header-text h2 {
+        font-family: 'Playfair Display', Georgia, serif !important;
+        font-size: 1.35rem !important;
+        margin: 0 !important;
+        color: var(--text) !important;
+        font-weight: 700 !important;
+    }
+    .sidebar-header .header-text .sub {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.72rem !important;
+        color: var(--muted) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        display: block !important;
+        margin-top: 2px !important;
+    }
 
     /* Sidebar */
-    [data-testid="stSidebar"] { background-color: var(--surface); border-right: 1px solid var(--border); }
+    [data-testid="stSidebar"] { 
+        background-color: var(--surface) !important; 
+        border-right: 1px solid var(--border) !important; 
+    }
     [data-testid="stSidebar"] hr, hr { border-color: var(--border); }
 
     /* Text inputs / selects / textareas */
     [data-baseweb="input"], [data-baseweb="base-input"], [data-baseweb="select"] > div, [data-baseweb="textarea"] {
-        background-color: var(--surface-2) !important; border-color: var(--border) !important; border-radius: 10px !important; }
+        background-color: var(--surface) !important; 
+        border: 1px solid var(--border) !important; 
+        border-radius: 6px !important; 
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    [data-baseweb="input"]:focus-within, [data-baseweb="select"] > div:focus-within, [data-baseweb="textarea"]:focus-within {
+        border-color: var(--accent-gold) !important;
+        box-shadow: 0 0 0 3px var(--glow) !important;
+    }
     input, textarea, [data-baseweb="select"] div { color: var(--text) !important; }
     input::placeholder, textarea::placeholder { color: var(--muted) !important; }
 
     /* Dropdown popovers */
-    [data-baseweb="popover"] div, [data-baseweb="menu"], [role="listbox"] { background-color: var(--surface) !important; }
+    [data-baseweb="popover"] div, [data-baseweb="menu"], [role="listbox"] { 
+        background-color: var(--surface) !important; 
+        border: 1px solid var(--border) !important;
+        border-radius: 6px !important;
+    }
     [data-baseweb="popover"] li, [role="option"] { color: var(--text) !important; }
 
     /* File uploader */
-    [data-testid="stFileUploaderDropzone"] { background-color: var(--surface-2) !important;
-        border: 1px dashed var(--border) !important; border-radius: 12px; }
+    [data-testid="stFileUploaderDropzone"] { 
+        background-color: var(--surface-2) !important;
+        border: 1px dashed var(--border) !important; 
+        border-radius: 8px; 
+        transition: all 0.2s ease !important;
+    }
+    [data-testid="stFileUploaderDropzone"]:hover {
+        border-color: var(--primary) !important;
+    }
     [data-testid="stFileUploaderDropzone"] * { color: var(--muted) !important; }
 
     /* Buttons */
-    .stButton > button { background: var(--primary); color: #fff; border: 0; border-radius: 10px;
-        font-weight: 600; padding: 0.55rem 1rem; box-shadow: var(--shadow);
-        transition: filter .15s ease, transform .05s ease; }
-    .stButton > button:hover { filter: brightness(1.08); color: #fff; }
-    .stButton > button:active { transform: translateY(1px); }
-    .stButton > button:disabled { opacity: .45; box-shadow: none; }
+    .stButton > button { 
+        background: var(--primary-deep) !important; 
+        color: #fff !important; 
+        border: 1px solid var(--border) !important; 
+        border-radius: 6px !important;
+        font-weight: 600 !important; 
+        font-family: 'Inter', system-ui, sans-serif !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        font-size: 0.85rem !important;
+        padding: 0.55rem 1.2rem !important; 
+        box-shadow: var(--shadow) !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important; 
+    }
+    .stButton > button:hover { 
+        background: var(--primary) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 15px rgba(21, 128, 61, 0.15) !important;
+        filter: brightness(1.05) !important; 
+    }
+    .stButton > button:active { transform: translateY(0) !important; }
+    .stButton > button:disabled { opacity: .45 !important; box-shadow: none !important; transform: none !important; }
 
     /* Metric cards */
-    [data-testid="stMetric"] { background: var(--surface); border: 1px solid var(--border);
-        border-left: 5px solid var(--primary); border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow); }
-    [data-testid="stMetricValue"] { color: var(--text); font-weight: 700; }
-    [data-testid="stMetricLabel"], [data-testid="stMetricLabel"] * { color: var(--muted) !important; }
+    [data-testid="stMetric"] { 
+        background: var(--surface) !important; 
+        border: 1px solid var(--border) !important;
+        border-radius: 6px !important; 
+        padding: 18px 20px !important; 
+        box-shadow: var(--shadow) !important; 
+        transition: all 0.2s ease !important;
+    }
+    [data-testid="stMetric"]:hover {
+        transform: translateY(-2px) !important;
+        border-color: var(--accent-gold) !important;
+    }
+    [data-testid="stMetricValue"] { 
+        color: var(--text) !important; 
+        font-family: 'Playfair Display', Georgia, serif !important;
+        font-weight: 700 !important; 
+        font-size: 2.25rem !important;
+        letter-spacing: -0.02em !important;
+    }
+    [data-testid="stMetricLabel"] {
+        font-family: 'Inter', system-ui, sans-serif !important;
+        color: var(--muted) !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        font-size: 0.72rem !important;
+        margin-bottom: 4px !important;
+    }
+    [data-testid="column"]:nth-child(1) [data-testid="stMetric"] { 
+        border-left: 4px solid var(--primary) !important; 
+    }
+    [data-testid="column"]:nth-child(2) [data-testid="stMetric"] { 
+        border-left: 4px solid var(--error) !important; 
+        background-color: var(--error-bg) !important; 
+        border-color: rgba(186, 26, 26, 0.2) !important;
+    }
+    [data-testid="column"]:nth-child(3) [data-testid="stMetric"] { 
+        border-left: 4px solid var(--warning) !important; 
+        background-color: var(--warning-bg) !important;
+        border-color: rgba(144, 77, 0, 0.2) !important;
+    }
 
     /* Expanders */
-    [data-testid="stExpander"] { border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
-        margin-bottom: 10px; box-shadow: var(--shadow); overflow: hidden; }
-    [data-testid="stExpander"] summary { color: var(--text); font-weight: 600; }
-    [data-testid="stExpander"] summary:hover { color: var(--primary); }
+    [data-testid="stExpander"] { 
+        border: 1px solid var(--border) !important; 
+        border-radius: 6px !important; 
+        background: var(--surface) !important;
+        margin-bottom: 12px !important; 
+        box-shadow: var(--shadow) !important; 
+        overflow: hidden !important; 
+        transition: all 0.2s ease !important;
+    }
+    [data-testid="stExpander"]:hover {
+        border-color: var(--primary) !important;
+    }
+    [data-testid="stExpander"] summary { 
+        color: var(--text) !important; 
+        font-family: 'Playfair Display', Georgia, serif !important;
+        font-weight: 700 !important; 
+        font-size: 1.15rem !important;
+        padding: 14px 20px !important;
+    }
+    [data-testid="stExpander"] summary:hover { color: var(--primary) !important; }
+
+    /* Custom action callouts inside expanders */
+    .action-callout {
+        padding: 16px !important;
+        border-radius: 6px !important;
+        font-family: 'Inter', system-ui, sans-serif !important;
+        font-size: 0.95rem !important;
+        line-height: 1.5 !important;
+        margin-top: 12px !important;
+        border: 1px solid var(--border) !important;
+    }
 
     /* Alerts */
-    [data-testid="stAlert"] { border-radius: 12px; border: 1px solid var(--border); }
+    [data-testid="stAlert"] { border-radius: 8px !important; border: 1px solid var(--border) !important; }
 
     /* Tabs */
-    .stTabs [data-baseweb="tab-list"] { gap: 8px; border-bottom: 1px solid var(--border); }
-    .stTabs [data-baseweb="tab"] { font-weight: 600; color: var(--muted); }
-    .stTabs [aria-selected="true"] { color: var(--primary) !important; }
-    .stTabs [data-baseweb="tab-highlight"] { background-color: var(--primary) !important; }
+    .stTabs [data-baseweb="tab-list"] { 
+        gap: 12px !important; 
+        border-bottom: 2px solid var(--border) !important; 
+        padding: 4px 4px 0px 4px !important;
+    }
+    .stTabs [data-baseweb="tab"] { 
+        font-family: 'Playfair Display', Georgia, serif !important;
+        font-weight: 600 !important; 
+        color: var(--muted) !important; 
+        border-radius: 6px 6px 0 0 !important;
+        padding: 10px 18px !important;
+        transition: all 0.2s ease !important;
+    }
+    .stTabs [data-baseweb="tab"]:hover {
+        color: var(--primary) !important;
+        background-color: var(--surface-2) !important;
+    }
+    .stTabs [aria-selected="true"] { color: var(--primary) !important; font-weight: 700 !important; }
+    .stTabs [data-baseweb="tab-highlight"] { background-color: var(--primary) !important; height: 3px !important; }
 
     /* Dataframe */
-    [data-testid="stDataFrame"] { border: 1px solid var(--border); border-radius: 12px; }
+    [data-testid="stDataFrame"] { 
+        border: 1px solid var(--border) !important; 
+        border-radius: 8px !important; 
+        overflow: hidden !important;
+        box-shadow: var(--shadow) !important;
+    }
 
-    /* Theme toggle radio → pill row */
-    [data-testid="stSidebar"] [role="radiogroup"] { gap: 6px; flex-wrap: wrap; }
+    /* Sidebar Navigation radio → clean list */
+    [data-testid="stSidebar"] [role="radiogroup"] { 
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important; 
+        width: 100% !important; 
+    }
+    [data-testid="stSidebar"] [role="radiogroup"] label {
+        background-color: transparent !important;
+        border: none !important;
+        border-left: 4px solid transparent !important;
+        border-radius: 0 6px 6px 0 !important;
+        padding: 8px 16px !important;
+        margin: 0 !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        color: var(--muted) !important;
+    }
+    [data-testid="stSidebar"] [role="radiogroup"] label:hover {
+        background-color: var(--surface-2) !important;
+        color: var(--text) !important;
+    }
+    [data-testid="stSidebar"] [role="radiogroup"] div[data-checked="true"] {
+        background-color: var(--surface-2) !important;
+        border-left: 4px solid var(--accent-gold) !important;
+        border-radius: 0 6px 6px 0 !important;
+        color: var(--primary) !important;
+        font-weight: 600 !important;
+        width: 100% !important;
+    }
+    [data-testid="stSidebar"] [role="radiogroup"] div[data-checked="true"] label {
+        color: var(--primary) !important;
+    }
+    [data-testid="stSidebar"] [role="radiogroup"] label div[role="presentation"] {
+        display: none !important;
+    }
+    [data-testid="stSidebar"] [role="radiogroup"] label div[data-testid="stMarkdownContainer"] {
+        margin-left: 0 !important;
+    }
 
     /* Hide Streamlit chrome for a clean look */
     #MainMenu, [data-testid="stToolbar"], [data-testid="stDecoration"], footer { visibility: hidden; }
+
+    /* ── KPI Cards (Stitch design) ────────────────────────────────────────── */
+    .kpi-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .kpi-card {
+        position: relative; background: var(--surface); border: 1px solid var(--border);
+        border-radius: 8px; padding: 22px 24px; overflow: hidden;
+        box-shadow: var(--shadow); transition: border-color .2s ease; min-height: 130px;
+    }
+    .kpi-total { border-left: 4px solid var(--primary); }
+    .kpi-high {
+        border-left: 4px solid var(--error) !important;
+        border-color: rgba(186,26,26,.2) !important;
+        background-color: var(--error-bg) !important;
+    }
+    .kpi-medium {
+        border-left: 4px solid var(--warning) !important;
+        border-color: rgba(144,77,0,.2) !important;
+        background-color: var(--warning-bg) !important;
+    }
+    .kpi-watermark {
+        position: absolute; top: 8px; right: 10px;
+        font-family: 'Material Symbols Outlined'; font-size: 60px;
+        color: var(--text); opacity: .05;
+        font-variation-settings: 'FILL' 1, 'wght' 400;
+        line-height: 1; pointer-events: none; user-select: none;
+    }
+    .kpi-label {
+        font-size: .69rem; font-weight: 600; text-transform: uppercase;
+        letter-spacing: .08em; color: var(--muted); margin-bottom: 8px;
+    }
+    .kpi-high .kpi-label  { color: var(--error)   !important; }
+    .kpi-medium .kpi-label { color: var(--warning) !important; }
+    .kpi-value {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 2.4rem; font-weight: 700; color: var(--text);
+        letter-spacing: -.02em; line-height: 1.15; position: relative; z-index: 1;
+    }
+    .kpi-subtitle {
+        font-size: .74rem; color: var(--muted);
+        margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+    }
+    .kpi-high .kpi-subtitle   { color: var(--error)   !important; border-color: rgba(186,26,26,.15) !important; }
+    .kpi-medium .kpi-subtitle { color: var(--warning) !important; border-color: rgba(144,77,0,.15)  !important; }
+
+    /* ── Section Headers ──────────────────────────────────────────────────── */
+    .section-hdr {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 1.28rem; font-weight: 600; color: var(--text);
+        padding-bottom: 12px; border-bottom: 1px solid var(--border);
+        margin: 4px 0 20px 0; letter-spacing: -.01em;
+    }
+
+    /* ── Risk Cards (Stitch design) ───────────────────────────────────────── */
+    .risk-card {
+        position: relative; background: var(--surface); border: 1px solid var(--border);
+        overflow: hidden; margin-bottom: 18px;
+        transition: border-color .2s ease; border-radius: 2px; box-shadow: var(--shadow);
+    }
+    .risk-card:hover { border-color: var(--muted); }
+    .risk-card::before {
+        content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    }
+    .risk-high::before   { background: var(--error);   }
+    .risk-medium::before { background: var(--warning); }
+    .risk-low::before    { background: var(--primary); }
+    .risk-inner { padding: 22px 26px 22px 30px; }
+    .risk-hdr {
+        display: flex; justify-content: space-between;
+        align-items: flex-start; gap: 16px; margin-bottom: 16px;
+    }
+    .risk-title-area { flex: 1; }
+    .risk-title {
+        font-family: 'Playfair Display', Georgia, serif !important;
+        font-size: 1.08rem !important; font-weight: 700 !important;
+        color: var(--text) !important; margin: 0 0 5px 0 !important;
+        letter-spacing: -.01em; line-height: 1.3;
+    }
+    .risk-ref {
+        font-size: .77rem !important; font-style: italic !important;
+        color: var(--muted) !important; margin: 0 !important;
+    }
+    .risk-badge {
+        display: inline-block; padding: 3px 10px; border-radius: 3px;
+        font-size: .67rem; font-weight: 600; text-transform: uppercase;
+        letter-spacing: .1em; flex-shrink: 0; margin-top: 2px; white-space: nowrap;
+    }
+    .badge-high   { background: rgba(186,26,26,.1); color: var(--error);   border: 1px solid rgba(186,26,26,.3); }
+    .badge-medium { background: rgba(144,77,0,.1);  color: var(--warning); border: 1px solid rgba(144,77,0,.3);  }
+    .badge-low    { background: rgba(0,59,27,.08);  color: var(--primary); border: 1px solid rgba(0,59,27,.2);   }
+    .risk-body { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .risk-col-lbl {
+        font-size: .67rem; font-weight: 600; text-transform: uppercase;
+        letter-spacing: .1em; color: var(--muted); margin-bottom: 8px;
+    }
+    .risk-action-lbl { color: var(--primary) !important; }
+    .risk-col-txt { font-size: .88rem; color: var(--text); line-height: 1.6; margin: 0; }
+    .risk-action-box {
+        background: var(--surface-2);
+        border: 1px solid rgba(0,59,27,.12); border-left: 4px solid var(--primary);
+        border-radius: 4px; padding: 14px 16px;
+    }
 """
 
 _FONT_IMPORT = (
     "@import url('https://fonts.googleapis.com/css2?"
-    "family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&display=swap');"
+    "family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&"
+    "family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');"
 )
 
 
@@ -158,10 +535,10 @@ def build_theme_css(mode: str) -> str:
 def chart_palette(mode: str) -> dict:
     """Plotly font/grid colours per mode (Plotly can't read CSS variables)."""
     if mode == "Dark":
-        return {"font": "#C8D2E0", "grid": "rgba(255,255,255,0.10)"}
+        return {"font": "#94A3BB", "grid": "rgba(255, 255, 255, 0.05)"}
     if mode == "Light":
-        return {"font": "#33415A", "grid": "rgba(15,23,42,0.08)"}
-    return {"font": "#7385A0", "grid": "rgba(128,128,128,0.18)"}  # System compromise
+        return {"font": "#475569", "grid": "rgba(0, 0, 0, 0.04)"}
+    return {"font": "#64748B", "grid": "rgba(128, 128, 128, 0.08)"}  # System compromise
 
 
 # ── Page config ──────────────────────────────────────────────────────────────
@@ -240,14 +617,21 @@ def run_subprocess(cmd):
 
 
 # ── Sidebar: appearance + connection setup ────────────────────────────────────
-st.sidebar.title("⚖️ Compliance Engine")
+st.sidebar.markdown(
+    '<div class="sidebar-header">'
+    '<span class="header-icon">gavel</span>'
+    '<div class="header-text">'
+    '<h2>Audit Portfolio</h2>'
+    '<span class="sub">Institutional Grade Engine</span>'
+    '</div>'
+    '</div>',
+    unsafe_allow_html=True,
+)
 
-st.sidebar.radio(
-    "Appearance",
-    options=["System", "Light", "Dark"],
-    key="theme_mode",
-    horizontal=True,
-    format_func=lambda x: {"System": "🖥 System", "Light": "☀️ Light", "Dark": "🌙 Dark"}[x],
+nav_selection = st.sidebar.radio(
+    "Navigation",
+    options=["📋 Latest Report", "📁 Audit Trail"],
+    label_visibility="collapsed",
 )
 
 st.sidebar.markdown("---")
@@ -352,19 +736,36 @@ if st.sidebar.button(
             with st.expander("Details"):
                 st.code(output or "No output", language="text")
 
+st.sidebar.markdown("---")
+st.sidebar.selectbox(
+    "Appearance Mode",
+    options=["System", "Light", "Dark"],
+    key="theme_mode",
+    format_func=lambda x: {"System": "🖥 System", "Light": "☀️ Light", "Dark": "🌙 Dark"}[x],
+)
+
+# Load latest report early to extract client name and processed date for the Top App Bar
+report = latest_report()
+if report:
+    client_name = report.get("client_name", "No Active Client")
+    run_date = report.get("run_date", "N/A")
+else:
+    client_name = "No Active Client"
+    run_date = "N/A"
+
 # ── Main area ────────────────────────────────────────────────────────────────
 st.markdown(
-    '<div class="hero">'
-    '<h1>⚖️ Compliance Review Engine</h1>'
-    '<p>AI-assisted CRA compliance risk review — bring your own AI, your data stays local</p>'
-    '</div>',
+    f'<div class="hero">'
+    f'<h1>⚖️ Compliance Review Engine</h1>'
+    f'<div class="hero-metadata">'
+    f'<span class="hero-meta-label">Client: {client_name}</span>'
+    f'<span class="hero-meta-sub">Processed: {run_date}</span>'
+    f'</div>'
+    f'</div>',
     unsafe_allow_html=True,
 )
 
-tab_report, tab_audit = st.tabs(["📋 Latest Report", "📁 Audit Trail"])
-
-with tab_report:
-    report = latest_report()
+if nav_selection == "📋 Latest Report":
     if report is None:
         st.info("Connect your AI and run your first analysis using the sidebar.")
     else:
@@ -379,10 +780,29 @@ with tab_report:
             f"{report.get('provider', '')} ({report.get('model', '')})"
         )
 
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Total Risks", len(risks))
-        c2.metric("High Severity", high, delta=high or None, delta_color="inverse")
-        c3.metric("Medium Severity", medium, delta=medium or None, delta_color="inverse")
+        st.markdown(
+            f"""
+            <div class="kpi-row">
+              <div class="kpi-card kpi-total">
+                <div class="kpi-watermark">rule</div>
+                <div class="kpi-label">Total Identified Risks</div>
+                <div class="kpi-value">{len(risks)}</div>
+                <div class="kpi-subtitle">Across CRA Regulatory Documents</div>
+              </div>
+              <div class="kpi-card kpi-high">
+                <div class="kpi-label">High Severity</div>
+                <div class="kpi-value">{high}</div>
+                <div class="kpi-subtitle">Immediate action required</div>
+              </div>
+              <div class="kpi-card kpi-medium">
+                <div class="kpi-label">Medium Severity</div>
+                <div class="kpi-value">{medium}</div>
+                <div class="kpi-subtitle">Monitor and document</div>
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
         if risks:
             pal = chart_palette(st.session_state.theme_mode)
@@ -398,40 +818,61 @@ with tab_report:
                     marker_color=colors,
                     text=severities,
                     textposition="inside",
-                    textfont=dict(color="#FFFFFF", size=12),
+                    textfont=dict(color="#FFFFFF", size=11, family="Inter", weight="bold"),
                     hovertext=[r.get("client_exposure", "") for r in risks],
                 )
             )
             fig.update_layout(
                 plot_bgcolor="rgba(0,0,0,0)",
                 paper_bgcolor="rgba(0,0,0,0)",
-                font=dict(color=pal["font"], family="IBM Plex Sans"),
+                font=dict(color=pal["font"], family="Inter"),
                 xaxis=dict(
-                    title="Severity (HIGH=3 · MEDIUM=2 · LOW=1)",
+                    title="Risk Severity",
                     gridcolor=pal["grid"], zerolinecolor=pal["grid"],
+                    tickvals=[1, 2, 3],
+                    ticktext=["Low", "Medium", "High"],
                 ),
                 yaxis=dict(autorange="reversed", gridcolor=pal["grid"], zerolinecolor=pal["grid"]),
-                height=80 + 64 * len(risks),
-                margin=dict(l=10, r=10, t=30, b=10),
+                height=80 + 60 * len(risks),
+                margin=dict(l=10, r=10, t=20, b=10),
                 showlegend=False,
             )
+            st.markdown('<div class="section-hdr">Risk Severity Overview</div>', unsafe_allow_html=True)
             st.plotly_chart(fig, use_container_width=True)
 
+            st.markdown('<div class="section-hdr">Detailed Findings</div>', unsafe_allow_html=True)
             for r in risks:
                 sev = str(r.get("severity", "")).upper()
-                color = SEVERITY_COLOR.get(sev, "#9CA3AF")
-                with st.expander(f"{sev} — {r.get('title', '')}"):
-                    st.markdown(f"**{r.get('title', '')}**")
-                    st.markdown(f"*CRA Reference: {r.get('cra_reference', '')}*")
-                    st.markdown(f"**Client exposure:** {r.get('client_exposure', '')}")
-                    st.markdown(
-                        f"<div style='background:{color}22;border-left:4px solid {color};"
-                        f"padding:8px 12px;border-radius:8px;'>"
-                        f"<b>Action:</b> {r.get('action', '')}</div>",
-                        unsafe_allow_html=True,
-                    )
+                stripe = {"HIGH": "risk-high", "MEDIUM": "risk-medium", "LOW": "risk-low"}.get(sev, "risk-low")
+                badge  = {"HIGH": "badge-high", "MEDIUM": "badge-medium", "LOW": "badge-low"}.get(sev, "badge-low")
+                st.markdown(
+                    f"""
+                    <article class="risk-card {stripe}">
+                      <div class="risk-inner">
+                        <div class="risk-hdr">
+                          <div class="risk-title-area">
+                            <h4 class="risk-title">{r.get('title', '')}</h4>
+                            <p class="risk-ref">{r.get('cra_reference', '')}</p>
+                          </div>
+                          <span class="risk-badge {badge}">{sev}</span>
+                        </div>
+                        <div class="risk-body">
+                          <div>
+                            <div class="risk-col-lbl">Client Exposure</div>
+                            <p class="risk-col-txt">{r.get('client_exposure', '')}</p>
+                          </div>
+                          <div class="risk-action-box">
+                            <div class="risk-col-lbl risk-action-lbl">Recommended Action</div>
+                            <p class="risk-col-txt">{r.get('action', '')}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
-with tab_audit:
+else:
     df = load_audit_dataframe()
     if df.empty:
         st.info("No analyses recorded yet. Run your first analysis to populate the audit trail.")
