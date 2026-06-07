@@ -2,15 +2,17 @@
 
 **Author: Arun Prabakar Vadaseri Rajendran**
 
-This document is a complete technical and conceptual walkthrough of the Compliance Automation Engine. It explains what every part of the system does, how each piece connects to the others, and why it was designed this way.
+A complete technical and conceptual walkthrough of the Compliance Automation Engine — what every part does, how each piece connects to the others, and why it was designed this way.
 
 ---
 
 ## What the system does
 
-The engine takes two inputs: a folder of CRA regulatory PDFs and a plain-text client business profile. It extracts the text from every PDF, combines it with the client profile, and sends both to an AI model with a structured prompt. The AI responds with exactly five compliance risk items, each tagged with a severity level, a CRA reference, an explanation of why this specific client is exposed, and a concrete next action. Those five risks are saved to disk as a JSON report and a human-readable summary, logged to a SQLite audit database, and displayed in a Streamlit dashboard. An optional n8n schedule can also convert the summary into a draft client email and save it straight to Gmail Drafts.
+The engine takes two inputs: a folder of CRA regulatory PDFs and a plain-text client business profile. It extracts the text from every PDF, combines it with the client profile, and sends both to an AI model with a structured prompt. The AI responds with exactly five compliance risk items, each tagged with a severity level, a CRA reference, an explanation of why this specific client is exposed, and a concrete next action. Those five risks are saved to disk as a JSON report and a human-readable summary, logged to a SQLite audit database, and displayed in a Streamlit dashboard. An optional n8n schedule converts the summary into a draft client email and saves it straight to Gmail Drafts.
 
-The AI connection is bring-your-own-key: the user enters their own API key in the dashboard. The key lives only in the browser session and is never written to disk, environment variables, or the repository.
+The AI connection is **bring-your-own-key and bring-your-own-model**: the user enters their API key and model name in the dashboard. Nothing is hardcoded — no default models exist anywhere in the codebase. This means any current or future model from any provider works without touching the code.
+
+A **demo mode** is built in: if no real analysis has been run yet, the dashboard loads a pre-built sample report from `data/demo_report.json`. This populates the full dashboard for anyone opening the Streamlit Cloud link without needing an API key.
 
 ---
 
@@ -27,7 +29,7 @@ docs/regulations/*.pdf          docs/clients/client_profile.txt
                             |
                             v
                03_analyze_compliance.py
-               (build prompt, call AI, parse JSON)
+               (build prompt, call AI via ai_router, parse JSON)
                             |
               +-------------+-------------+
               |             |             |
@@ -40,6 +42,9 @@ docs/regulations/*.pdf          docs/clients/client_profile.txt
                05_dashboard.py (Streamlit UI)
                shows risks, chart, audit trail
                             |
+                    (demo fallback: data/demo_report.json
+                     shown when outputs/reports/ is empty)
+                            |
                             v (optional, via n8n)
                email draft saved to Gmail Drafts
 ```
@@ -50,36 +55,48 @@ docs/regulations/*.pdf          docs/clients/client_profile.txt
 
 ### `scripts/ai_router.py` · Central provider router
 
-All AI calls in the project go through one function: `call_ai(prompt, provider, api_key)`. This keeps credentials out of every other script and makes it trivial to swap providers.
+All AI calls go through one function: `call_ai(prompt, provider, api_key, model, custom_base_url)`. This keeps credentials and model names out of every other script and makes swapping providers trivial.
 
-The router holds a `PROVIDER_CONFIG` dictionary with base URLs and model names for each supported provider. For Groq, OpenRouter, OpenAI, and Custom it uses the `openai` SDK with a custom `base_url`, since all four follow the OpenAI API format. For Anthropic it uses the `anthropic` SDK directly. The Custom provider accepts a `custom_base_url` and `custom_model` at runtime, which means any OpenAI-compatible endpoint in existence can be used without touching the code.
+`PROVIDER_CONFIG` stores only the fixed infrastructure for each provider: the base URL for the API endpoint and which SDK to use. **Model names are not stored here.** The user supplies the model name at runtime through the dashboard, which passes it through to every script via the `--model` command-line argument.
 
-The router also handles retries (up to three attempts on timeout) and raises typed exceptions for authentication failures and network errors so callers can give clear feedback to the user.
+```python
+PROVIDER_CONFIG = {
+    "groq":       {"base_url": "https://api.groq.com/openai/v1", "sdk": "openai"},
+    "openrouter": {"base_url": "https://openrouter.ai/api/v1",   "sdk": "openai"},
+    "openai":     {"base_url": None,                              "sdk": "openai"},
+    "anthropic":  {"base_url": None,                              "sdk": "anthropic"},
+    "custom":     {"base_url": None,                              "sdk": "openai"},
+}
+```
 
-A companion function `get_model_name(provider, custom_model)` returns the model string that goes on reports and in the audit log.
+Groq, OpenRouter, OpenAI, and Custom all use the OpenAI SDK with a `base_url` override, since they follow the same chat-completions format. Anthropic uses its own SDK. The Custom provider additionally accepts a user-supplied `custom_base_url`, so any OpenAI-compatible endpoint works without code changes.
+
+`call_ai()` raises a `ValueError` if no model name is provided, ensuring the requirement is enforced at the lowest level. It also handles retries (up to three on timeout) and raises typed exceptions for authentication and network failures.
+
+`get_model_name(provider, model)` returns the model string that appears on reports and in the audit log.
 
 ### `scripts/01_test_connection.py` · Connection validator
 
-Accepts `--provider`, `--key`, and optionally `--base-url` and `--model` on the command line. Sends a minimal prompt (`"Respond with exactly: Connected."`) through `call_ai()` and prints a confirmation line. Exit code 0 means success; exit code 1 means failure with a clear error message. The dashboard calls this as a subprocess when the user clicks Connect, so a green or red status message appears without any async complexity.
+Accepts `--provider`, `--key`, and `--model` on the command line (all required). Sends a minimal prompt (`"Respond with exactly: Connected."`) through `call_ai()` and prints a confirmation line. Exit code 0 means success; exit code 1 means failure with a clear error message. The dashboard calls this as a subprocess when the user clicks Connect.
 
 ### `scripts/02_extract_pdf.py` · PDF extractor
 
-Uses `pypdf` (not PyPDF2) to open every PDF in `docs/regulations/` and read it page by page. Pages are joined with a separator header (`=== SOURCE: filename ===`) so the AI can see which regulation each passage came from. Encrypted PDFs are skipped with a warning; blank pages are skipped silently. A Rich progress bar shows `Reading page N of total: filename` so long extractions are visible.
+Uses `pypdf` to open every PDF in `docs/regulations/` and read it page by page. Pages are joined with a separator header (`=== SOURCE: filename ===`) so the AI can see which regulation each passage came from. Encrypted PDFs are skipped with a warning; blank pages are skipped silently. A Rich progress bar shows extraction progress.
 
-The result is one combined string passed directly to the analysis engine. This design avoids any chunking or vector database complexity: the full regulatory context goes to the AI in one prompt. For the document sizes typically used by accounting firms this works well, and it keeps the architecture simple.
+The result is one combined string passed directly to the analysis engine — no chunking or vector database. The full regulatory context goes to the AI in one prompt. For the document sizes typically used by accounting firms this works well and keeps the architecture simple.
 
 ### `scripts/03_analyze_compliance.py` · Analysis engine
 
-This is the core of the system. It:
+Core of the system. Signature: `run_analysis(provider, api_key, model, custom_base_url=None)`.
 
 1. Reads `docs/clients/client_profile.txt`
-2. Calls `extract_text_from_folder("docs/regulations/")` to get the combined PDF text
-3. Builds a structured prompt that instructs the AI to act as a Senior Compliance Auditor with CRA expertise and return exactly five risks in a specific JSON schema
-4. Calls `call_ai()` with a Rich spinner showing which provider and model are in use
-5. Parses the response with `parse_json_response()`, which tries `json.loads()` first and then falls back to a regex that strips markdown code fences in case the AI wrapped its output in triple backticks
-6. Saves the result to `outputs/reports/report_YYYYMMDD_HHMMSS.json` and a companion `_summary.txt`
+2. Calls `extract_text_from_folder("docs/regulations/")` for the combined PDF text
+3. Builds a structured prompt: role + regulatory context + client profile + exact JSON schema
+4. Calls `call_ai()` with a Rich spinner showing provider and model
+5. Parses the response with `parse_json_response()` — tries `json.loads()` first, then strips markdown code fences as a fallback
+6. Saves `outputs/reports/report_YYYYMMDD_HHMMSS.json` and a companion `_summary.txt`
 7. Inserts an audit row into `database/audit.db`
-8. Prints a colour-coded Rich table: HIGH risks in red, MEDIUM in yellow, LOW in green
+8. Prints a colour-coded Rich table: HIGH in red, MEDIUM in yellow, LOW in green
 
 The JSON schema enforced in the prompt:
 
@@ -97,46 +114,44 @@ The JSON schema enforced in the prompt:
 }
 ```
 
+Fixing the output count at five and specifying the schema in the prompt makes the response machine-readable without post-processing heuristics.
+
 ### `scripts/04_run_pipeline.py` · Orchestrator
 
-Accepts `--provider` and `--key` on the command line. Runs pre-flight checks (provider is recognised, at least one PDF exists, client profile exists) and then calls `run_analysis()` directly (not as a subprocess). Prints a Rich summary box at the end showing the report path, model used, and wall-clock runtime. This is the entry point for both the dashboard (which spawns it as a subprocess) and the n8n schedule (which runs it via an Execute Command node).
+Accepts `--provider`, `--key`, and `--model` (all required) plus optional `--base-url`. Runs pre-flight checks (provider is recognised, at least one PDF exists, client profile exists) then calls `run_analysis()`. Prints a Rich summary box showing the report path, model used, and wall-clock runtime. This is the entry point for both the dashboard (subprocess) and the n8n schedule (Execute Command node).
 
 ### `scripts/05_dashboard.py` · Streamlit dashboard
 
-The dashboard is a single-file Streamlit app. It is organised into these areas:
+The dashboard is a single-file Streamlit app with full custom CSS and a light/auto/dark theme toggle.
 
-**Sidebar: step 1 - Connect your AI**
+**Sidebar: step 1 — Connect your AI**
 
-A selectbox lets the user pick a provider. Choosing "Custom" reveals two extra fields for a base URL and model name. An API key field (password type) sits below. When the user clicks Connect, the dashboard spawns `01_test_connection.py` as a subprocess and reads the exit code. On success it stores the provider and key in `st.session_state` for the rest of the session.
+A selectbox lets the user pick a provider. A **Model name** text input appears for all providers — this is where the user types the model they want to use. Choosing *Custom* additionally reveals a Base URL field. An API key field (password type) sits below. Clicking Connect runs `01_test_connection.py` as a subprocess; success stores provider, model, and key in `st.session_state` for the rest of the session — nothing is written to disk.
 
-**Sidebar: step 2 - Upload and analyse**
+**Sidebar: step 2 — Upload and analyse**
 
-A file uploader accepts a `.txt` client profile and saves it to `docs/clients/client_profile.txt`. The Analyse Now button is disabled until a connection is established. On click, the dashboard spawns `04_run_pipeline.py` as a subprocess and shows a spinner while it runs.
+A file uploader accepts a `.txt` client profile. The Analyse Now button is disabled until connected. On click, `04_run_pipeline.py` runs as a subprocess with provider, key, and model passed as arguments.
 
 **Main area: Latest Report tab**
 
-Loads the most recent JSON file from `outputs/reports/`. If none exists, shows an onboarding message. Otherwise it renders:
-- Three metric cards: Total Risks, High Severity (red delta), Medium Severity (amber delta)
-- A horizontal Plotly bar chart with one bar per risk, coloured by severity (red / amber / green) and a transparent background that adapts to the active theme
-- An expandable card per risk showing the CRA reference, client exposure, and a green-highlighted action box
+Loads the most recent JSON from `outputs/reports/`. If that folder is empty, falls back to `data/demo_report.json`. When demo data is shown a blue info banner notifies the user. Once a real analysis is run, the live results replace the demo automatically.
+
+Renders:
+- Three KPI cards: Total Risks, High Severity (error colour), Medium Severity (warning colour)
+- A horizontal Plotly bar chart, one bar per risk, coloured by severity, transparent background that adapts to the active theme
+- A styled risk card per finding: CRA reference, client exposure, and an action box with a left-side colour stripe
 
 **Main area: Audit Trail tab**
 
-Reads `database/audit.db` and shows the analyses table as a dataframe. Creates the database and table if they do not exist yet, so the tab never crashes on a fresh install.
+Reads `database/audit.db` and displays the analyses table as a dataframe. Creates the database and table if they do not exist, so the tab never crashes on a fresh install.
 
 **Appearance toggle**
 
-A three-way Light / Auto / Dark pill at the bottom of the sidebar switches the CSS custom properties that control every colour in the app. Auto reads the operating system preference via `prefers-color-scheme`. The icons on the pill are rendered with Material Symbols Outlined via CSS `::after` pseudo-elements so no image assets are needed.
-
-**Theme system**
-
-All colours are CSS custom properties on `:root`. The `build_theme_css()` function generates the full `<style>` block at render time based on the current `theme_mode` session value. A JS snippet injected via `components.html()` applies a handful of inline styles that override Streamlit's emotion CSS where `!important` in a stylesheet is not enough.
+A three-way Light / Auto / Dark pill at the bottom of the sidebar. Auto reads the OS preference via `prefers-color-scheme`. All colours are CSS custom properties on `:root`; the `build_theme_css()` function regenerates the full `<style>` block at render time. A JS snippet injected via `components.html()` handles a handful of inline overrides that Streamlit's emotion CSS requires `!important` priority for.
 
 ---
 
 ## The AI prompt design
-
-The prompt is a role + context + schema instruction in one message:
 
 ```
 You are a Senior Compliance Auditor with expertise in Canadian tax law (CRA).
@@ -147,20 +162,28 @@ REGULATORY DOCUMENTS:
 CLIENT PROFILE:
 {client_profile.txt content}
 
-Identify exactly 5 compliance risk areas...
+Identify exactly 5 compliance risk areas for this client based on the documents.
+...
 Return ONLY valid JSON, no other text:
 {"compliance_risks": [...]}
 ```
 
-Fixing the output count at five and specifying the JSON schema in the prompt means the response is machine-readable without any post-processing heuristics. The `parse_json_response()` fallback handles the edge case where a model wraps its output in a markdown code block despite being told not to.
+Fixing the output count at five and requiring a specific JSON schema means the response is machine-readable every time. The `parse_json_response()` fallback handles the edge case where a model wraps its output in triple backticks despite being told not to.
 
 ---
 
 ## Security design
 
-- No API keys are ever stored: not in `.env`, not in any config file, not in the repository. The key is passed from the user's browser session to subprocess arguments in memory.
-- The `.gitignore` excludes `database/`, `outputs/`, and all PDF files (with a negation rule to keep the two sample CRA PDFs that ship with the repo for demo purposes).
-- The Streamlit session ends when the browser tab closes, at which point the key is gone.
+- **No API keys stored:** not in `.env`, not in any config file, not in the repository. The key is held in `st.session_state` for the browser session and passed to subprocess arguments in memory only.
+- **No model names stored:** the user's model choice is also session-only, keeping the tool neutral across providers and versions.
+- **`.gitignore`** excludes `database/`, `outputs/`, and `.env`. The two sample CRA PDFs are explicitly un-ignored so the demo works out of the box.
+- The Streamlit session ends when the browser tab closes, at which point both the key and model string are gone.
+
+---
+
+## Demo mode
+
+`data/demo_report.json` is a pre-built compliance report for a fictional client (Meridian Advisory Group Inc.) that ships with the repository. The dashboard loads it automatically when `outputs/reports/` is empty. This means anyone opening the Streamlit Cloud link sees a fully populated dashboard immediately — all KPI cards, the risk chart, and all five risk cards — without needing an API key. As soon as a real analysis is run, the live report replaces the demo.
 
 ---
 
@@ -169,26 +192,28 @@ Fixing the output count at five and specifying the JSON schema in the prompt mea
 `n8n/compliance_workflow.json` is a five-node workflow:
 
 | Node | Type | What it does |
-|------|------|-------------|
+|------|------|--------------|
 | 1 | Schedule Trigger | Fires daily at 9:00 AM |
-| 2 | Execute Command | Runs `04_run_pipeline.py` with provider and key |
-| 3 | Read File | Reads the latest `*_summary.txt` from `outputs/reports/` |
-| 4 | HTTP Request | Calls any OpenAI-compatible API to draft a client email from the summary |
-| 5 | Gmail | Saves the draft to Gmail Drafts via OAuth |
+| 2 | Execute Command | Runs `04_run_pipeline.py --provider … --key … --model …` |
+| 3 | Execute Command | Reads the latest `*_summary.txt` from `outputs/reports/` |
+| 4 | HTTP Request | Calls any OpenAI-compatible API to draft a client email |
+| 5 | Gmail | Saves the draft to Gmail Drafts via OAuth2 — never auto-sends |
 
-The email node uses a plain HTTP Request rather than a proprietary n8n AI node, so it works with whichever provider the team already uses. The draft is never sent automatically; it always lands in Gmail Drafts for human review first.
+**Gmail account setup:** In n8n, open the Gmail node and click *Add Credential* → *Gmail OAuth2*. A Google sign-in popup appears; sign in with the Gmail account you want drafts to appear in. n8n stores only the OAuth token — not your password. The draft is created with no "To" recipient, so you open it in Gmail, add the client's email address, review the content, and send when ready.
+
+The email node uses a plain HTTP Request rather than a proprietary n8n AI node, so it works with whichever provider and model the team already uses. Update the `YOUR_PROVIDER`, `YOUR_API_KEY`, and `YOUR_MODEL_NAME` placeholders in nodes 2 and 4 after importing the workflow.
 
 ---
 
 ## Extending the system
 
-**Adding a new AI provider**: add an entry to `PROVIDER_CONFIG` in `ai_router.py`. If the provider follows the OpenAI format, set `"sdk": "openai"` and supply the `base_url` and `model`. That is all.
+**Adding a new AI provider:** Add an entry to `PROVIDER_CONFIG` in `ai_router.py` with the `base_url` and `sdk` keys. If the provider follows the OpenAI format set `"sdk": "openai"`. No model name goes here — the user supplies it at runtime.
 
-**Changing the risk schema**: edit the JSON template in the prompt inside `run_analysis()` in `03_analyze_compliance.py` and update the display code in `05_dashboard.py`.
+**Changing the risk schema:** Edit the JSON template in the prompt inside `_build_prompt()` in `03_analyze_compliance.py` and update the display code in `05_dashboard.py`.
 
-**Changing the number of risks**: change "exactly 5" in the prompt and update the assertion in the validation check.
+**Changing the number of risks:** Change "exactly 5" in the prompt in `03_analyze_compliance.py`.
 
-**Adding more clients**: the client profile is a plain `.txt` file. Upload a different one for each session or modify the pipeline to accept a path argument.
+**Adding more clients:** The client profile is a plain `.txt` file. Upload a different one for each session via the dashboard sidebar, or pass a path argument directly to the pipeline scripts.
 
 ---
 

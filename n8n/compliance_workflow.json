@@ -20,7 +20,7 @@
     },
     {
       "parameters": {
-        "command": "cd /Users/YOUR_USERNAME/compliance-automation-engine && python scripts/04_run_pipeline.py --provider groq --key YOUR_GROQ_KEY"
+        "command": "cd /Users/YOUR_USERNAME/compliance-automation-engine && python scripts/04_run_pipeline.py --provider YOUR_PROVIDER --key YOUR_API_KEY --model YOUR_MODEL_NAME"
       },
       "id": "node-run-pipeline",
       "name": "Run Compliance Pipeline",
@@ -57,7 +57,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\"model\":\"llama-3.3-70b-versatile\",\"messages\":[{\"role\":\"user\",\"content\":\"Draft a polite professional compliance review email to a small business client. Risks: {{ $json.stdout }}. Requirements: open warmly, list only HIGH and MEDIUM risks in plain English, one clarifying question per risk, suggest a 30-minute call, under 400 words, sign-off: Compliance Review Team. Return email text only.\"}]}",
+        "jsonBody": "={\"model\":\"YOUR_MODEL_NAME\",\"messages\":[{\"role\":\"user\",\"content\":\"Draft a polite professional compliance review email to a small business client. Risks: {{ $json.stdout }}. Requirements: open warmly, list only HIGH and MEDIUM risks in plain English, one clarifying question per risk, suggest a 30-minute call, under 400 words, sign-off: Compliance Review Team. Return email text only.\"}]}",
         "options": {}
       },
       "id": "node-draft-email",

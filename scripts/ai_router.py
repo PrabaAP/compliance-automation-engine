@@ -1,40 +1,39 @@
 """
 Central AI routing module. All scripts import call_ai() from here.
-No API keys are stored here; the key is always passed as a parameter.
+No API keys or model names are stored here — both are always passed as parameters.
 
 Every supported provider except Anthropic speaks the OpenAI chat-completions
 format, so a single OpenAI-compatible client handles Groq, OpenRouter, OpenAI
 and any user-supplied "custom" endpoint. Anthropic uses its own SDK.
+
+The user supplies their own model name at runtime; nothing is hardcoded.
 """
 
 import time
 
-# Provider catalogue. base_url / model are filled at runtime for "custom".
+# Provider catalogue.
+# base_url is the fixed API endpoint for each hosted provider.
+# Model names are NOT stored here — users supply them at runtime.
 PROVIDER_CONFIG = {
     "groq": {
         "base_url": "https://api.groq.com/openai/v1",
-        "model": "llama-3.3-70b-versatile",
         "sdk": "openai",
     },
     "openrouter": {
         "base_url": "https://openrouter.ai/api/v1",
-        "model": "meta-llama/llama-3.3-70b-instruct:free",
         "sdk": "openai",
     },
     "openai": {
-        "base_url": None,            # use the SDK default
-        "model": "gpt-4o",
+        "base_url": None,   # SDK default
         "sdk": "openai",
     },
     "anthropic": {
         "base_url": None,
-        "model": "claude-opus-4-8",  # latest, most capable Claude model
         "sdk": "anthropic",
     },
     "custom": {
-        "base_url": None,            # populated at runtime from user input
-        "model": None,               # populated at runtime from user input
-        "sdk": "openai",             # all custom providers must be OpenAI-compatible
+        "base_url": None,   # populated at runtime from user input
+        "sdk": "openai",    # all custom providers must be OpenAI-compatible
     },
 }
 
@@ -43,28 +42,33 @@ RETRY_WAIT_SECONDS = 5
 MAX_TOKENS = 4096
 
 
-def get_model_name(provider: str, custom_model: str = None) -> str:
-    """Return the model string that will actually be sent for this provider."""
-    if provider == "custom":
-        return custom_model
+def get_model_name(provider: str, model: str = None) -> str:
+    """Return the model string that will be sent for this provider."""
     if provider not in PROVIDER_CONFIG:
         raise ValueError(f"Unknown provider: '{provider}'")
-    return PROVIDER_CONFIG[provider]["model"]
+    return model or ""
 
 
 def call_ai(
     prompt: str,
     provider: str,
     api_key: str,
+    model: str,
     custom_base_url: str = None,
-    custom_model: str = None,
 ) -> str:
     """
     Send a single prompt to the chosen provider and return the text response.
 
+    Args:
+        prompt          The text prompt to send.
+        provider        One of: groq, openrouter, anthropic, openai, custom.
+        api_key         API key for the chosen provider.
+        model           Model name (required — user-supplied, no defaults).
+        custom_base_url Base URL for the custom provider only.
+
     Raises:
-        ValueError      on unknown provider, missing custom config, or 401 auth failure
-        ConnectionError on network failure
+        ValueError      on unknown provider, missing config, or 401 auth failure.
+        ConnectionError on network failure.
     """
     if provider not in PROVIDER_CONFIG:
         raise ValueError(
@@ -75,24 +79,24 @@ def call_ai(
     if not api_key:
         raise ValueError(f"No API key supplied for provider '{provider}'.")
 
+    if not model:
+        raise ValueError(
+            f"No model name supplied for provider '{provider}'. "
+            f"Enter a model name in the dashboard."
+        )
+
     config = PROVIDER_CONFIG[provider]
 
     if provider == "custom":
-        if not custom_base_url or not custom_model:
-            raise ValueError(
-                "Custom provider requires both a base URL and a model name."
-            )
-        return _call_openai_compatible(
-            prompt, api_key, custom_base_url, custom_model, provider
-        )
+        if not custom_base_url:
+            raise ValueError("Custom provider requires a base URL.")
+        return _call_openai_compatible(prompt, api_key, custom_base_url, model, provider)
 
     if config["sdk"] == "anthropic":
-        return _call_anthropic(prompt, api_key, config["model"])
+        return _call_anthropic(prompt, api_key, model)
 
     # groq / openrouter / openai
-    return _call_openai_compatible(
-        prompt, api_key, config["base_url"], config["model"], provider
-    )
+    return _call_openai_compatible(prompt, api_key, config["base_url"], model, provider)
 
 
 def _call_openai_compatible(prompt, api_key, base_url, model, provider):

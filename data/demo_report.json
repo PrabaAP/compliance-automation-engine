@@ -1,0 +1,43 @@
+{
+  "client_name": "Meridian Advisory Group Inc.",
+  "run_date": "2026-06-06 12:00:00",
+  "provider": "groq",
+  "model": "llama-3.3-70b-versatile",
+  "compliance_risks": [
+    {
+      "title": "Contractor Misclassification Risk",
+      "severity": "HIGH",
+      "cra_reference": "CRA RC4110 – Employee or Self-Employed?",
+      "client_exposure": "Three contractors show employee-like indicators (fixed hours, single client, no business risk). CRA may reclassify all as employees, triggering source deduction arrears plus 10% penalties.",
+      "action": "Commission a formal RC4110 worker-status review for all three contractors before next payroll cycle."
+    },
+    {
+      "title": "Shareholder Loan Overdue",
+      "severity": "HIGH",
+      "cra_reference": "ITA s.15(2) – Shareholder Benefits",
+      "client_exposure": "Director loan of $45,000 is 14 months outstanding, exceeding the one-year repayment window under s.15(2). The full balance is includible in the director’s personal income unless repaid.",
+      "action": "Repay or formally restructure the loan immediately; document as a genuine creditor obligation with a signed promissory note and market-rate interest."
+    },
+    {
+      "title": "Meals & Entertainment Overclaim",
+      "severity": "MEDIUM",
+      "cra_reference": "ITA s.67.1 – 50% Limitation Rule",
+      "client_exposure": "$34,800 in meals and entertainment was claimed in full. Under s.67.1 only 50% ($17,400) is deductible; the excess claim of $17,400 must be reversed.",
+      "action": "File a T2 adjustment to reduce the M&E deduction to $17,400 and adjust the tax provision accordingly."
+    },
+    {
+      "title": "Missing T2200 Declarations",
+      "severity": "MEDIUM",
+      "cra_reference": "CRA T2200 – Conditions of Employment",
+      "client_exposure": "Employees claiming home-office deductions have no signed T2200 forms on file. CRA will deny all related deductions on audit.",
+      "action": "Obtain signed T2200 forms from all directors and employees claiming work-from-home expenses before the personal tax filing deadline."
+    },
+    {
+      "title": "Vehicle Logbook Gaps",
+      "severity": "LOW",
+      "cra_reference": "CRA IT-521R – Motor Vehicle Expenses",
+      "client_exposure": "Vehicle expense claims lack contemporaneous mileage logs, making the business-use percentage unverifiable. CRA will default to 0% business use on audit.",
+      "action": "Implement a digital logbook (e.g., MileIQ) immediately and reconstruct a representative 12-week sample log for prior periods."
+    }
+  ]
+}

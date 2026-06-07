@@ -67,8 +67,8 @@ def main():
     parser = argparse.ArgumentParser(description="Run the compliance automation pipeline.")
     parser.add_argument("--provider", required=True)
     parser.add_argument("--key", required=True)
-    parser.add_argument("--base-url", default=None)
-    parser.add_argument("--model", default=None)
+    parser.add_argument("--model", required=True, help="Model name to use")
+    parser.add_argument("--base-url", default=None, help="Base URL (custom provider only)")
     args = parser.parse_args()
 
     start = time.time()
@@ -77,7 +77,7 @@ def main():
     preflight(args.provider, args.base_url, args.model)
 
     console.print("\n[bold]Running analysis[/bold]")
-    report = run_analysis(args.provider, args.key, args.base_url, args.model)
+    report = run_analysis(args.provider, args.key, args.model, args.base_url)
 
     runtime = time.time() - start
     model = get_model_name(args.provider, args.model)

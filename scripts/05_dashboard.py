@@ -29,6 +29,7 @@ SCRIPTS_DIR = PROJECT_ROOT / "scripts"
 REPORTS_DIR = PROJECT_ROOT / "outputs" / "reports"
 CLIENT_PROFILE = PROJECT_ROOT / "docs" / "clients" / "client_profile.txt"
 DB_PATH = PROJECT_ROOT / "database" / "audit.db"
+DEMO_REPORT = PROJECT_ROOT / "data" / "demo_report.json"
 
 TEST_SCRIPT = SCRIPTS_DIR / "01_test_connection.py"
 PIPELINE_SCRIPT = SCRIPTS_DIR / "04_run_pipeline.py"
@@ -718,8 +719,8 @@ if "connected" not in st.session_state:
     st.session_state.connected = False
 if "custom_base_url" not in st.session_state:
     st.session_state.custom_base_url = None
-if "custom_model" not in st.session_state:
-    st.session_state.custom_model = None
+if "provider_model" not in st.session_state:
+    st.session_state.provider_model = ""
 
 st.markdown(build_theme_css(st.session_state.theme_mode), unsafe_allow_html=True)
 
@@ -732,6 +733,14 @@ def latest_report():
         return None
     with open(files[-1], encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def load_demo_report():
+    """Return the bundled demo report, or None if the file is missing."""
+    if DEMO_REPORT.exists():
+        with open(DEMO_REPORT, encoding="utf-8") as fh:
+            return json.load(fh)
+    return None
 
 
 def load_audit_dataframe():
@@ -799,42 +808,51 @@ provider = st.sidebar.selectbox(
     "AI Provider",
     options=["groq", "openrouter", "anthropic", "openai", "custom"],
     format_func=lambda x: {
-        "groq":       "Groq  ·  Free  ·  Llama 3.3 70B",
+        "groq":       "Groq  ·  Free tier",
         "openrouter": "OpenRouter  ·  Free tier",
-        "anthropic":  "Anthropic  ·  Claude Opus",
-        "openai":     "OpenAI  ·  GPT-4o",
+        "anthropic":  "Anthropic  ·  Claude",
+        "openai":     "OpenAI",
         "custom":     "Custom  ·  Any OpenAI-compatible",
     }[x],
 )
 
 custom_base_url = None
-custom_model = None
 if provider == "custom":
     custom_base_url = st.sidebar.text_input(
         "API Base URL", placeholder="https://api.yourprovider.com/v1"
     )
-    custom_model = st.sidebar.text_input(
-        "Model name", placeholder="e.g. mistral-large, llama-3..."
-    )
+
+# Every provider requires the user to supply their own model name.
+provider_model = st.sidebar.text_input(
+    "Model name",
+    placeholder="Enter the model name for your provider",
+)
 
 key_label = {
-    "groq": "Groq API Key (free at console.groq.com)",
+    "groq":       "Groq API Key (free at console.groq.com)",
     "openrouter": "OpenRouter API Key (free at openrouter.ai)",
-    "anthropic": "Anthropic API Key",
-    "openai": "OpenAI API Key",
-    "custom": "API Key for your provider",
+    "anthropic":  "Anthropic API Key",
+    "openai":     "OpenAI API Key",
+    "custom":     "API Key for your provider",
 }
 api_key = st.sidebar.text_input(key_label[provider], type="password")
 
 if st.sidebar.button("Connect", use_container_width=True):
     if not api_key:
         st.sidebar.error("Enter an API key first.")
-    elif provider == "custom" and (not custom_base_url or not custom_model):
-        st.sidebar.error("Custom provider needs a base URL and model name.")
+    elif not provider_model.strip():
+        st.sidebar.error("Enter a model name first.")
+    elif provider == "custom" and not custom_base_url:
+        st.sidebar.error("Custom provider needs a base URL.")
     else:
-        cmd = [sys.executable, str(TEST_SCRIPT), "--provider", provider, "--key", api_key]
+        cmd = [
+            sys.executable, str(TEST_SCRIPT),
+            "--provider", provider,
+            "--key", api_key,
+            "--model", provider_model.strip(),
+        ]
         if provider == "custom":
-            cmd += ["--base-url", custom_base_url, "--model", custom_model]
+            cmd += ["--base-url", custom_base_url]
         with st.spinner(f"Testing {provider} connection..."):
             ok, output = run_subprocess(cmd)
         if ok:
@@ -842,16 +860,19 @@ if st.sidebar.button("Connect", use_container_width=True):
             st.session_state.provider = provider
             st.session_state.api_key = api_key
             st.session_state.custom_base_url = custom_base_url
-            st.session_state.custom_model = custom_model
+            st.session_state.provider_model = provider_model.strip()
             st.sidebar.success("✅ Connected")
         else:
             st.session_state.connected = False
-            st.sidebar.error("Connection failed. Check your key and URL.")
+            st.sidebar.error("Connection failed. Check your key, model name, and URL.")
             with st.sidebar.expander("Details"):
                 st.code(output or "No output", language="text")
 
 if st.session_state.connected:
-    st.sidebar.caption(f"Connected to **{st.session_state.provider}**")
+    st.sidebar.caption(
+        f"Connected to **{st.session_state.provider}** · "
+        f"`{st.session_state.get('provider_model', '')}`"
+    )
 
 # ── Sidebar: upload + analyse ────────────────────────────────────────────────
 st.sidebar.markdown("---")
@@ -873,18 +894,12 @@ if st.sidebar.button(
         cmd = [
             sys.executable,
             str(PIPELINE_SCRIPT),
-            "--provider",
-            st.session_state.provider,
-            "--key",
-            st.session_state.api_key,
+            "--provider", st.session_state.provider,
+            "--key", st.session_state.api_key,
+            "--model", st.session_state.get("provider_model", ""),
         ]
         if st.session_state.provider == "custom":
-            cmd += [
-                "--base-url",
-                st.session_state.custom_base_url,
-                "--model",
-                st.session_state.custom_model,
-            ]
+            cmd += ["--base-url", st.session_state.custom_base_url]
         with st.spinner(f"Analysing with {st.session_state.provider}..."):
             ok, output = run_subprocess(cmd)
         if ok:
@@ -905,6 +920,11 @@ st.sidebar.radio(
 
 # Load latest report early to extract client name and processed date for the Top App Bar
 report = latest_report()
+is_demo = False
+if report is None:
+    report = load_demo_report()
+    is_demo = report is not None
+
 if report:
     client_name = report.get("client_name", "No Active Client")
     run_date = report.get("run_date", "N/A")
@@ -927,7 +947,12 @@ st.markdown(
 if nav_selection == "Latest Report":
     if report is None:
         st.info("Connect your AI and run your first analysis using the sidebar.")
-    else:
+    elif is_demo:
+        st.info(
+            "📊 **Demo Mode** · Showing sample results for Meridian Advisory Group Inc. "
+            "Connect your AI in the sidebar and click **Analyse Now** to process a real client file."
+        )
+    if report is not None:
         risks = report.get("compliance_risks", [])
         severities = [str(r.get("severity", "")).upper() for r in risks]
         high = severities.count("HIGH")

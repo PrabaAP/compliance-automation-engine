@@ -155,7 +155,7 @@ def _print_risk_table(client_name, risks):
     console.print(table)
 
 
-def run_analysis(provider: str, api_key: str, custom_base_url: str = None, custom_model: str = None) -> dict:
+def run_analysis(provider: str, api_key: str, model: str, custom_base_url: str = None) -> dict:
     """
     Run the full compliance analysis and persist the report, summary and audit row.
     Returns the report dict.
@@ -173,15 +173,14 @@ def run_analysis(provider: str, api_key: str, custom_base_url: str = None, custo
     pdf_count = len(list(REGULATIONS_DIR.glob("*.pdf")))
 
     prompt = _build_prompt(pdf_text, client_profile)
-    model = get_model_name(provider, custom_model)
 
     with console.status(f"[bold cyan]Sending to {provider} ({model})...[/bold cyan]", spinner="dots"):
         raw = call_ai(
             prompt=prompt,
             provider=provider,
             api_key=api_key,
+            model=model,
             custom_base_url=custom_base_url,
-            custom_model=custom_model,
         )
 
     parsed = parse_json_response(raw)
@@ -229,8 +228,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run compliance analysis directly.")
     parser.add_argument("--provider", required=True)
     parser.add_argument("--key", required=True)
-    parser.add_argument("--base-url", default=None)
-    parser.add_argument("--model", default=None)
+    parser.add_argument("--model", required=True, help="Model name to use")
+    parser.add_argument("--base-url", default=None, help="Base URL (custom provider only)")
     args = parser.parse_args()
 
-    run_analysis(args.provider, args.key, args.base_url, args.model)
+    run_analysis(args.provider, args.key, args.model, args.base_url)

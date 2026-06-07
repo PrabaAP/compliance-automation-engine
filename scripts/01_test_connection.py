@@ -22,7 +22,7 @@ def main():
     parser.add_argument("--provider", required=True, help="groq | openrouter | anthropic | openai | custom")
     parser.add_argument("--key", required=True, help="API key for the chosen provider")
     parser.add_argument("--base-url", default=None, help="Base URL (custom provider only)")
-    parser.add_argument("--model", default=None, help="Model name (custom provider only)")
+    parser.add_argument("--model", required=True, help="Model name to use")
     args = parser.parse_args()
 
     try:
@@ -30,8 +30,8 @@ def main():
             prompt="Respond with exactly: Connected.",
             provider=args.provider,
             api_key=args.key,
+            model=args.model,
             custom_base_url=args.base_url,
-            custom_model=args.model,
         )
         model_name = get_model_name(args.provider, args.model)
         print(f"✅ {args.provider} connected · model: {model_name}")

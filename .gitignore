@@ -4,7 +4,8 @@ __pycache__/
 .DS_Store
 database/
 outputs/
+.claude/
 docs/regulations/*.pdf
-# ...but ship the synthetic sample regulations so the live demo works out of the box
+# Ship the two CRA sample regulations so the live demo works out of the box
 !docs/regulations/CRA_Employer_Payroll_Obligations.pdf
 !docs/regulations/CRA_Corporate_Deductions_and_Shareholder_Loans.pdf
