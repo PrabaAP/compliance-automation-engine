@@ -1,0 +1,160 @@
+<svg viewBox="0 0 760 738" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Compliance Automation Engine: data flow</title>
+  <desc>Architecture diagram showing how CRA PDFs and a client business profile flow through extraction, model-agnostic AI routing, compliance analysis, a Streamlit dashboard, and optional n8n Gmail Draft automation.</desc>
+
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#888780"/>
+    </marker>
+  </defs>
+
+  <style>
+    .al { stroke: #888780; stroke-width: 1.5; fill: none; }
+    .ad { stroke: #888780; stroke-width: 1.5; fill: none; stroke-dasharray: 6,4; opacity: 0.6; }
+    .note { font-size: 10.5px; font-style: italic; fill: #888780; font-family: sans-serif; }
+
+    .bg-blue   { fill: #E6F1FB; }
+    .bg-teal   { fill: #E1F5EE; }
+    .bg-purple { fill: #EEEDFE; }
+    .bg-gray   { fill: #F1EFE8; }
+    .bg-amber  { fill: #FAEEDA; }
+    .bg-coral  { fill: #FAECE7; }
+    .bg-pill   { fill: #EEEDFE; }
+
+    .txt-blue   { fill: #0C447C; font-family: sans-serif; }
+    .txt-teal   { fill: #085041; font-family: sans-serif; }
+    .txt-purple { fill: #3C3489; font-family: sans-serif; }
+    .txt-gray   { fill: #444441; font-family: sans-serif; }
+    .txt-amber  { fill: #633806; font-family: sans-serif; }
+    .txt-coral  { fill: #712B13; font-family: sans-serif; }
+    .txt-pill   { fill: #3C3489; font-family: sans-serif; }
+    .txt-sub    { opacity: 0.75; font-family: sans-serif; }
+  </style>
+
+  <!-- Row 1: Inputs -->
+  <rect x="55" y="24" width="240" height="56" rx="8" class="bg-blue"/>
+  <text x="175" y="48" text-anchor="middle" font-size="13" font-weight="500" class="txt-blue">CRA Regulation PDFs</text>
+  <text x="175" y="67" text-anchor="middle" font-size="11" class="txt-blue txt-sub">docs/regulations/*.pdf</text>
+
+  <rect x="465" y="24" width="240" height="56" rx="8" class="bg-blue"/>
+  <text x="585" y="48" text-anchor="middle" font-size="13" font-weight="500" class="txt-blue">Client Business Profile</text>
+  <text x="585" y="67" text-anchor="middle" font-size="11" class="txt-blue txt-sub">docs/clients/client_profile.txt</text>
+
+  <!-- Merge lines -->
+  <line x1="175" y1="80" x2="175" y2="112" class="al"/>
+  <line x1="175" y1="112" x2="380" y2="112" class="al"/>
+  <line x1="585" y1="80" x2="585" y2="112" class="al"/>
+  <line x1="585" y1="112" x2="380" y2="112" class="al"/>
+  <line x1="380" y1="112" x2="380" y2="130" class="al" marker-end="url(#arr)"/>
+
+  <!-- Row 2: PDF Extraction -->
+  <rect x="258" y="130" width="244" height="52" rx="8" class="bg-teal"/>
+  <text x="380" y="153" text-anchor="middle" font-size="13" font-weight="500" class="txt-teal">PDF Extraction</text>
+  <text x="380" y="171" text-anchor="middle" font-size="11" class="txt-teal txt-sub">02_extract_pdf.py · pypdf</text>
+
+  <line x1="380" y1="182" x2="380" y2="202" class="al" marker-end="url(#arr)"/>
+
+  <!-- Row 3: AI Router -->
+  <rect x="205" y="202" width="350" height="52" rx="8" class="bg-purple"/>
+  <text x="380" y="226" text-anchor="middle" font-size="13" font-weight="500" class="txt-purple">AI Router</text>
+  <text x="380" y="245" text-anchor="middle" font-size="11" class="txt-purple txt-sub">ai_router.py · no hardcoded models</text>
+
+  <line x1="380" y1="254" x2="380" y2="270" class="al"/>
+
+  <!-- Row 4: Provider pills -->
+  <rect x="112" y="270" width="536" height="34" rx="6" fill="none" stroke="#B4B2A9" stroke-width="0.5"/>
+
+  <rect x="122" y="277" width="86" height="20" rx="4" class="bg-pill"/>
+  <text x="165" y="291" text-anchor="middle" font-size="10" font-weight="500" class="txt-pill">Groq (free)</text>
+
+  <rect x="218" y="277" width="100" height="20" rx="4" class="bg-pill"/>
+  <text x="268" y="291" text-anchor="middle" font-size="10" font-weight="500" class="txt-pill">OpenRouter (free)</text>
+
+  <rect x="328" y="277" width="86" height="20" rx="4" class="bg-pill"/>
+  <text x="371" y="291" text-anchor="middle" font-size="10" font-weight="500" class="txt-pill">Anthropic</text>
+
+  <rect x="424" y="277" width="72" height="20" rx="4" class="bg-pill"/>
+  <text x="460" y="291" text-anchor="middle" font-size="10" font-weight="500" class="txt-pill">OpenAI</text>
+
+  <rect x="506" y="277" width="132" height="20" rx="4" class="bg-pill"/>
+  <text x="572" y="291" text-anchor="middle" font-size="10" font-weight="500" class="txt-pill">Custom endpoint</text>
+
+  <text x="380" y="320" text-anchor="middle" class="note">user supplies model name at runtime — nothing hardcoded</text>
+
+  <line x1="380" y1="328" x2="380" y2="348" class="al" marker-end="url(#arr)"/>
+
+  <!-- Row 5: Analysis Engine -->
+  <rect x="238" y="348" width="284" height="52" rx="8" class="bg-teal"/>
+  <text x="380" y="371" text-anchor="middle" font-size="13" font-weight="500" class="txt-teal">Analysis Engine</text>
+  <text x="380" y="390" text-anchor="middle" font-size="11" class="txt-teal txt-sub">03_analyze_compliance.py · 5 risks · fixed JSON schema</text>
+
+  <!-- Fan out -->
+  <line x1="316" y1="400" x2="180" y2="420" class="al" marker-end="url(#arr)"/>
+  <line x1="380" y1="400" x2="380" y2="420" class="al" marker-end="url(#arr)"/>
+  <line x1="444" y1="400" x2="580" y2="420" class="al" marker-end="url(#arr)"/>
+
+  <!-- Row 6: Three outputs -->
+  <rect x="88" y="420" width="184" height="52" rx="8" class="bg-gray"/>
+  <text x="180" y="443" text-anchor="middle" font-size="13" font-weight="500" class="txt-gray">JSON Report</text>
+  <text x="180" y="461" text-anchor="middle" font-size="11" class="txt-gray txt-sub">outputs/reports/</text>
+
+  <rect x="288" y="420" width="184" height="52" rx="8" class="bg-gray"/>
+  <text x="380" y="443" text-anchor="middle" font-size="13" font-weight="500" class="txt-gray">Text Summary</text>
+  <text x="380" y="461" text-anchor="middle" font-size="11" class="txt-gray txt-sub">outputs/reports/</text>
+
+  <rect x="488" y="420" width="184" height="52" rx="8" class="bg-gray"/>
+  <text x="580" y="443" text-anchor="middle" font-size="13" font-weight="500" class="txt-gray">SQLite Audit Trail</text>
+  <text x="580" y="461" text-anchor="middle" font-size="11" class="txt-gray txt-sub">database/audit.db</text>
+
+  <!-- Converge to dashboard -->
+  <line x1="180" y1="472" x2="294" y2="492" class="al" marker-end="url(#arr)"/>
+  <line x1="380" y1="472" x2="380" y2="492" class="al" marker-end="url(#arr)"/>
+  <line x1="580" y1="472" x2="466" y2="492" class="al" marker-end="url(#arr)"/>
+
+  <!-- Row 7: Dashboard -->
+  <rect x="198" y="492" width="364" height="56" rx="8" class="bg-amber"/>
+  <text x="380" y="517" text-anchor="middle" font-size="13" font-weight="500" class="txt-amber">Streamlit Dashboard</text>
+  <text x="380" y="537" text-anchor="middle" font-size="11" class="txt-amber txt-sub">05_dashboard.py · KPI cards · severity chart · audit tab</text>
+
+  <text x="576" y="508" class="note">↳ demo fallback</text>
+  <text x="576" y="521" class="note">  when no reports yet</text>
+
+  <!-- Optional arrow to n8n -->
+  <line x1="296" y1="548" x2="196" y2="590" class="ad" marker-end="url(#arr)"/>
+  <text x="218" y="581" class="note">optional</text>
+
+  <!-- Row 8: n8n + Gmail -->
+  <rect x="80" y="590" width="200" height="52" rx="8" class="bg-coral"/>
+  <text x="180" y="614" text-anchor="middle" font-size="13" font-weight="500" class="txt-coral">n8n Workflow</text>
+  <text x="180" y="632" text-anchor="middle" font-size="11" class="txt-coral txt-sub">daily schedule trigger</text>
+
+  <line x1="280" y1="616" x2="316" y2="616" class="ad" marker-end="url(#arr)"/>
+
+  <rect x="316" y="590" width="244" height="52" rx="8" class="bg-coral"/>
+  <text x="438" y="614" text-anchor="middle" font-size="13" font-weight="500" class="txt-coral">Gmail Draft</text>
+  <text x="438" y="632" text-anchor="middle" font-size="11" class="txt-coral txt-sub">no recipient · human reviews before sending</text>
+
+
+  <!-- Colour guide -->
+  <line x1="60" y1="660" x2="700" y2="660" stroke="#D3D1C7" stroke-width="0.5"/>
+  <text x="380" y="675" text-anchor="middle" font-size="10.5" font-style="italic" fill="#888780" font-family="sans-serif">Colour guide</text>
+
+  <rect x="60" y="684" width="16" height="14" rx="3" class="bg-blue" stroke="#B5D4F4" stroke-width="0.5"/>
+  <text x="82" y="696" font-size="11" fill="#5F5E5A" font-family="sans-serif">Data inputs</text>
+
+  <rect x="280" y="684" width="16" height="14" rx="3" class="bg-teal" stroke="#9FE1CB" stroke-width="0.5"/>
+  <text x="302" y="696" font-size="11" fill="#5F5E5A" font-family="sans-serif">Processing steps</text>
+
+  <rect x="500" y="684" width="16" height="14" rx="3" class="bg-purple" stroke="#CECBF6" stroke-width="0.5"/>
+  <text x="522" y="696" font-size="11" fill="#5F5E5A" font-family="sans-serif">AI routing layer</text>
+
+  <rect x="60" y="706" width="16" height="14" rx="3" class="bg-gray" stroke="#D3D1C7" stroke-width="0.5"/>
+  <text x="82" y="718" font-size="11" fill="#5F5E5A" font-family="sans-serif">Data artifacts</text>
+
+  <rect x="280" y="706" width="16" height="14" rx="3" class="bg-amber" stroke="#FAC775" stroke-width="0.5"/>
+  <text x="302" y="718" font-size="11" fill="#5F5E5A" font-family="sans-serif">Dashboard / UI</text>
+
+  <rect x="500" y="706" width="16" height="14" rx="3" class="bg-coral" stroke="#F5C4B3" stroke-width="0.5"/>
+  <text x="522" y="718" font-size="11" fill="#5F5E5A" font-family="sans-serif">Automation (optional)</text>
+
+</svg>
