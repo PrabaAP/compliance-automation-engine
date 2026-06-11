@@ -88,7 +88,9 @@ compliance-automation-engine/
 ├── requirements.txt
 ├── README.md
 ├── USER_GUIDE.md
-└── HOW_IT_WORKS.md
+├── HOW_IT_WORKS.md
+├── CASE_STUDY.md
+└── architecture_diagram.svg
 ```
 
 ## Automated email (n8n)
@@ -97,7 +99,7 @@ compliance-automation-engine/
 
 1. **Daily 9 AM trigger** fires the pipeline automatically
 2. **Execute Command** runs `04_run_pipeline.py` with your provider, key, and model
-3. **Read File** reads the latest summary from `outputs/reports/`
+3. **Execute Command** reads the latest summary from `outputs/reports/`
 4. **HTTP Request** calls any OpenAI-compatible API to draft a client email
 5. **Gmail** saves the draft to Gmail Drafts via OAuth — it is never auto-sent
 
@@ -109,4 +111,4 @@ compliance-automation-engine/
 - IBM-certified professional in data and AI.
 - LinkedIn: [linkedin.com/in/arun-prabakar-vadaseri-rajendran](https://www.linkedin.com/in/arun-prabakar-vadaseri-rajendran)
 
-See [USER_GUIDE.md](USER_GUIDE.md) for a non-technical walkthrough and [HOW_IT_WORKS.md](HOW_IT_WORKS.md) for the full technical breakdown.
+See [USER_GUIDE.md](USER_GUIDE.md) for a non-technical walkthrough, [HOW_IT_WORKS.md](HOW_IT_WORKS.md) for the full technical breakdown, and [CASE_STUDY.md](CASE_STUDY.md) for design decisions, validation notes, and the Phase 2 roadmap.

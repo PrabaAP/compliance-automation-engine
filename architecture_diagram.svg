@@ -79,7 +79,7 @@
   <rect x="506" y="277" width="132" height="20" rx="4" class="bg-pill"/>
   <text x="572" y="291" text-anchor="middle" font-size="10" font-weight="500" class="txt-pill">Custom endpoint</text>
 
-  <text x="380" y="320" text-anchor="middle" class="note">user supplies model name at runtime — nothing hardcoded</text>
+  <text x="380" y="320" text-anchor="middle" class="note">user supplies model name at runtime, nothing hardcoded</text>
 
   <line x1="380" y1="328" x2="380" y2="348" class="al" marker-end="url(#arr)"/>
 
