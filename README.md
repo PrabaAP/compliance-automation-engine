@@ -1,7 +1,5 @@
 # Compliance Automation Engine
 
-**Author: Arun Prabakar Vadaseri Rajendran**
-
 A GenAI tool for accounting and advisory firms. It reads CRA regulatory PDFs, cross-references them against a client business profile, and produces a five-point compliance risk checklist with a ready-to-send client email. You connect your own AI provider inside the app, and the email can be pushed straight to Gmail Drafts through an n8n workflow.
 
 `Python` · `Streamlit` · `Plotly` · `SQLite` · `n8n` · multi-provider LLM (OpenAI-compatible + Anthropic)
