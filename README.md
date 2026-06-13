@@ -105,11 +105,15 @@ compliance-automation-engine/
 
 **Connecting your Gmail account:** In n8n, open the Gmail node → click *Add Credential* → *Gmail OAuth2* → sign in with the Google account you want drafts to appear in. n8n stores only the OAuth token, not your password. The draft lands in your Drafts folder with no recipient set, so you add the client's email address and review before sending.
 
-## About the author
-
-- Six years of SME advisory experience across 80+ business clients, covering compliance, financial reporting, and business operations.
-- Generative AI Leader (Google Cloud) and Applied Data Science (IBM) certified.
-- LinkedIn: [linkedin.com/in/arun-prabakar-vadaseri-rajendran](https://www.linkedin.com/in/arun-prabakar-vadaseri-rajendran)
-- GitHub: [github.com/PrabaAP](https://github.com/PrabaAP)
-
 See [USER_GUIDE.md](USER_GUIDE.md) for a non-technical walkthrough, [HOW_IT_WORKS.md](HOW_IT_WORKS.md) for the full technical breakdown, and [CASE_STUDY.md](CASE_STUDY.md) for design decisions, validation notes, and the Phase 2 roadmap.
+
+## About the Author
+
+**Arun Prabakar Vadaseri Rajendran**  
+Ottawa, Ontario, Canada
+
+Finance and operations professional with six years of SME advisory experience across 80+ business clients. Previously ran ATE Associates, a Chennai-based finance, compliance, and operational risk advisory firm, where he led a 7-person team, built Power BI dashboards for SME clients, and handled compliance work across 80+ businesses. Before that, worked as an Audit Assistant at S Senthil and Co (Chartered Accountants), covering audit, tax, and internal controls across SME and public sector clients.
+
+Certified in Generative AI Leadership (Google Cloud), Applied Data Science (IBM), Python for Data Science (IBM), Data Analysis with Python (IBM), Google Prompting Essentials, Google AI Essentials, GitHub Copilot (Microsoft), and Google Agile Project Management.
+
+[LinkedIn](https://www.linkedin.com/in/arun-prabakar-vadaseri-rajendran) | [GitHub](https://github.com/PrabaAP)
