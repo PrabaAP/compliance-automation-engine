@@ -108,7 +108,7 @@ compliance-automation-engine/
 ## About the author
 
 - Six years of SME advisory experience across 80+ business clients, covering compliance, financial reporting, and business operations.
-- Generative AI Leader (Google Cloud) and Applied Data Science (IBM) certified; pursuing a Master of Applied Business Analytics at Carleton University.
+- Generative AI Leader (Google Cloud) and Applied Data Science (IBM) certified.
 - LinkedIn: [linkedin.com/in/arun-prabakar-vadaseri-rajendran](https://www.linkedin.com/in/arun-prabakar-vadaseri-rajendran)
 - GitHub: [github.com/PrabaAP](https://github.com/PrabaAP)
 
