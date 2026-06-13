@@ -92,6 +92,6 @@ Check that the Gmail credential in n8n is still authorised (Google OAuth tokens 
 
 ## About
 
-Built by **Arun Prabakar Vadaseri Rajendran**, drawing on a background in professional services and advisory work and an IBM certification in data and AI.
+Built by **Arun Prabakar Vadaseri Rajendran**, drawing on six years of SME advisory experience across 80+ clients in compliance, financial reporting, and business operations. Generative AI Leader (Google Cloud) and Applied Data Science (IBM) certified.
 
 LinkedIn: [linkedin.com/in/arun-prabakar-vadaseri-rajendran](https://www.linkedin.com/in/arun-prabakar-vadaseri-rajendran)
